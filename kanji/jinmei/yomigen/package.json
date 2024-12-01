@@ -1,0 +1,9 @@
+{
+  "name": "yomigen",
+  "version": "0.0.0",
+  "description": "Yomi-gana database generator",
+  "devDependencies": {
+    "@mandel59/mojidata": "^1.6.0",
+    "@mandel59/mojidata-cli": "^1.6.0"
+  }
+}

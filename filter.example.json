@@ -1,0 +1,36 @@
+{
+  "and": [
+    {"mora": {"equal": 3}},
+    {"minRank": 2},
+    {"minTotalRank": 11},
+    {"commonYomi": {}},
+    {
+      "or": [
+        {
+          "and": [
+            {"yomiCount": {"rune": "ユ", "count": {"equal": 1}}},
+            {"yomiCount": {"rune": "ウ", "count": {"equal": 0}}},
+            {"yomiCount": {"rune": "サ", "count": {"lessThan": 2}}},
+            {"yomiCount": {"rune": "キ", "count": {"equal": 0}}}
+          ]
+        },
+        {
+          "and": [
+            {"yomiCount": {"rune": "ユ", "count": {"equal": 0}}},
+            {"yomiCount": {"rune": "ウ", "count": {"equal": 1}}},
+            {"yomiCount": {"rune": "サ", "count": {"lessThan": 2}}},
+            {"yomiCount": {"rune": "キ", "count": {"equal": 0}}}
+          ]
+        },
+        {
+          "and": [
+            {"yomiCount": {"rune": "ユ", "count": {"equal": 0}}},
+            {"yomiCount": {"rune": "ウ", "count": {"equal": 0}}},
+            {"yomiCount": {"rune": "サ", "count": {"equal": 0}}},
+            {"yomiCount": {"rune": "キ", "count": {"equal": 1}}}
+          ]
+        }
+      ]
+    }
+  ]
+}
