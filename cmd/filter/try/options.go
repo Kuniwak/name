@@ -28,7 +28,7 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap m
 STDIN
 	JSON filter:
 
-		filter: true or false or and or or or not or minRank or minTotalRank or mora or strokes or yomiCount
+		filter: true or false or and or or or not or minRank or minTotalRank or mora or strokes or yomiCount or length
 		true: {"true":{}}
 		false: {"false":{}}
 		and: {"and":[filter...]}
@@ -40,6 +40,7 @@ STDIN
 		mora: {"maxMora":count}
 		strokes: {"strokes":count}
 		yomiCount: {"yomiCount":{"rune":string,"count":count}}
+		length: {"length":count}
 		count: {"equal":byte} or {"greaterThan":byte} or {"lessThan":byte}
 
 EXAMPLES

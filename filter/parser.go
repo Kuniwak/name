@@ -18,6 +18,7 @@ type Data struct {
 	False        *Unit          `json:"false,omitempty"`
 	YomiCount    *YomiCountData `json:"yomiCount,omitempty"`
 	CommonYomi   *Unit          `json:"commonYomi,omitempty"`
+	Length       *ByteFuncData  `json:"length,omitempty"`
 }
 
 type Unit struct{}
@@ -128,6 +129,14 @@ func Build(seed Data) (Func, error) {
 
 	if seed.MinTotalRank != nil {
 		return MinTotalRank(*seed.MinTotalRank), nil
+	}
+
+	if seed.Length != nil {
+		countFunc, err := BuildByteFunc(*seed.Length)
+		if err != nil {
+			return nil, err
+		}
+		return Length(countFunc), nil
 	}
 
 	return nil, fmt.Errorf("empty data")

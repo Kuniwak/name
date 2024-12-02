@@ -74,6 +74,10 @@ func TestParse(t *testing.T) {
 			input:    `{"commonYomi":{}}`,
 			expected: CommonYomi(),
 		},
+		"Length": {
+			input:    `{"length":{"equal":1}}`,
+			expected: Length(ByteEqual(1)),
+		},
 	}
 
 	familyNames := []string{"山田", "一"}

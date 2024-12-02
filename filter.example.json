@@ -4,6 +4,7 @@
     {"minRank": 2},
     {"minTotalRank": 11},
     {"commonYomi": {}},
+    {"length": {"equal": 2}},
     {
       "or": [
         {
