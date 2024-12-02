@@ -28,16 +28,20 @@ var SubCommand = cli2.SubCommand{
 			return 0
 		}
 
-		Main(opts.FamilyName, opts.GeneratorFunc, opts.Filter, strokesMap, printer.NewTSVPrinter(procInout.Stdout))
+		genOpts := gen.Options{
+			MinLength: opts.MinLength,
+			MaxLength: opts.MaxLength,
+		}
+		Main(opts.FamilyName, opts.GeneratorFunc, genOpts, opts.Filter, strokesMap, printer.NewTSVPrinter(procInout.Stdout))
 		return 0
 	},
 }
 
-func Main(familyName []rune, genFunc gen.GenerateFunc, filterFunc filter.Func, strokesMap map[rune]byte, printFunc printer.Func) {
+func Main(familyName []rune, genFunc gen.GenerateFunc, genOpts gen.Options, filterFunc filter.Func, strokesMap map[rune]byte, printFunc printer.Func) {
 	candCh := make(chan gen.Generated)
 	resCh := make(chan filter.Target)
 
-	go genFunc(familyName, candCh)
+	go genFunc(familyName, genOpts, candCh)
 
 	go printFunc(resCh)
 

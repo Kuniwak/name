@@ -7,34 +7,29 @@ import (
 )
 
 func NewFullSpaceGenerator(strokes map[rune]byte, yomiMap map[rune][][]rune) GenerateFunc {
-	return func(familyName []rune, ch chan<- Generated) {
+	return func(familyName []rune, opts Options, ch chan<- Generated) {
 		m := config.MaxStrokes - eval.SumStrokes(familyName, strokes)
+		fullSpaceGenerator([]rune{}, 0, m, opts, strokes, yomiMap, ch)
+		close(ch)
+	}
+}
 
-		for r1, stroke1 := range strokes {
-			if stroke1 > m {
-				continue
-			}
+func fullSpaceGenerator(current []rune, currentStrokes, maxStrokes byte, opts Options, strokesMap map[rune]byte, yomiMap map[rune][][]rune, ch chan<- Generated) {
+	if len(current) >= opts.MaxLength {
+		return
+	}
 
-			emit(ch, []rune{r1}, yomiMap)
-
-			for r2, stroke2 := range strokes {
-				if stroke1+stroke2 > m {
-					continue
-				}
-
-				emit(ch, []rune{r1, r2}, yomiMap)
-
-				for r3, stroke3 := range strokes {
-					if stroke1+stroke2+stroke3 > m {
-						continue
-					}
-
-					emit(ch, []rune{r1, r2, r3}, yomiMap)
-				}
-			}
+	for r, stroke := range strokesMap {
+		if currentStrokes+stroke > maxStrokes {
+			continue
 		}
 
-		close(ch)
+		newCurrent := append(append([]rune{}, current...), r)
+		if len(newCurrent) >= opts.MinLength {
+			emit(ch, newCurrent, yomiMap)
+		}
+
+		fullSpaceGenerator(newCurrent, currentStrokes+stroke, maxStrokes, opts, strokesMap, yomiMap, ch)
 	}
 }
 

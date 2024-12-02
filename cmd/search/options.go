@@ -13,6 +13,8 @@ type Options struct {
 	Help          bool
 	Filter        filter.Func
 	FamilyName    []rune
+	MinLength     int
+	MaxLength     int
 	GeneratorFunc gen.GenerateFunc
 }
 
@@ -21,6 +23,8 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap m
 
 	flags.SetOutput(stderr)
 	space := flags.String("space", "common", "Search spaces (available: full, common)")
+	minLength := flags.Int("min-length", 1, "Minimum length of a given name")
+	maxLength := flags.Int("max-length", 3, "Maximum length of a given name")
 
 	flags.Usage = func() {
 		o := flags.Output()
@@ -75,11 +79,37 @@ EXAMPLES
 		return nil, err
 	}
 
-	f, err := filter.Parse(bs)
+	data, err := filter.Parse(bs)
+	if err != nil {
+		return nil, err
+	}
+
+	f, err := filter.Build(data)
+	if err != nil {
+		return nil, err
+	}
+
+	if *minLength < 1 {
+		return nil, errors.New("min-length must be greater than or equal to 1")
+	}
+
+	if *minLength > 4 {
+		return nil, errors.New("min-length must be less than 4")
+	}
+
+	if *maxLength > 4 {
+		return nil, errors.New("max-length must be less than 4")
+	}
+
+	if *minLength > *maxLength {
+		return nil, errors.New("min-length must be less than or equal to max-length")
+	}
 
 	return &Options{
 		Filter:        f,
 		FamilyName:    familyName,
 		GeneratorFunc: genFunc,
+		MinLength:     *minLength,
+		MaxLength:     *maxLength,
 	}, nil
 }

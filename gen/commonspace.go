@@ -18,13 +18,13 @@ func NewCommonSpaceGenerator(strokesMap map[rune]byte) GenerateFunc {
 		panic(err.Error())
 	}
 
-	return func(familyName []rune, ch chan<- Generated) {
+	return func(familyName []rune, opts Options, ch chan<- Generated) {
 		for yomi, names := range mei {
 			for _, name := range names {
 				givenNameString := norm.NFC.String(name)
 				givenName := []rune(givenNameString)
 
-				if !kanji.IsValid(givenName, strokesMap) {
+				if !kanji.IsValid(givenName, strokesMap) || len(givenName) < int(opts.MinLength) || len(givenName) > int(opts.MaxLength) {
 					continue
 				}
 

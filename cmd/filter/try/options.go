@@ -67,7 +67,12 @@ EXAMPLES
 		return Options{}, err
 	}
 
-	f, err := filter.Parse(bs)
+	data, err := filter.Parse(bs)
+	if err != nil {
+		return Options{}, err
+	}
+
+	f, err := filter.Build(data)
 	if err != nil {
 		return Options{}, err
 	}

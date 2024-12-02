@@ -1,6 +1,11 @@
 package gen
 
-type GenerateFunc func(familyName []rune, ch chan<- Generated)
+type Options struct {
+	MinLength int
+	MaxLength int
+}
+
+type GenerateFunc func(familyName []rune, opts Options, ch chan<- Generated)
 
 type Generated struct {
 	GivenName  []rune

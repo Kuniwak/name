@@ -46,19 +46,19 @@ type IntFuncData struct {
 	GreaterThan *int `json:"greaterThan,omitempty"`
 }
 
-func Parse(bs []byte) (Func, error) {
+func Parse(bs []byte) (*Data, error) {
 	var seed Data
 	if err := json.Unmarshal(bs, &seed); err != nil {
 		return nil, err
 	}
-	return Build(seed)
+	return &seed, nil
 }
 
-func Build(seed Data) (Func, error) {
+func Build(seed *Data) (Func, error) {
 	if seed.And != nil {
 		filters := make([]Func, len(*seed.And))
 		for i, s := range *seed.And {
-			f, err := Build(s)
+			f, err := Build(&s)
 			if err != nil {
 				return nil, err
 			}
@@ -70,7 +70,7 @@ func Build(seed Data) (Func, error) {
 	if seed.Or != nil {
 		filters := make([]Func, len(*seed.Or))
 		for i, s := range *seed.Or {
-			f, err := Build(s)
+			f, err := Build(&s)
 			if err != nil {
 				return nil, err
 			}
@@ -80,7 +80,7 @@ func Build(seed Data) (Func, error) {
 	}
 
 	if seed.Not != nil {
-		f, err := Build(*seed.Not)
+		f, err := Build(seed.Not)
 		if err != nil {
 			return nil, err
 		}

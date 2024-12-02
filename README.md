@@ -174,7 +174,7 @@ $ name search --space full 山田 < ./filter.json | tee result.tsv
 
 ### 全空間探索
 
-常用漢字+人名用漢字の空間から名前候補を探索します。かなり時間がかかります。
+常用漢字+人名用漢字の空間から名前候補を探索します。かなり時間がかかります。現実的な時間で探索を終えるために `--max-length` を指定するなら `3` 以下を推奨します。
 
 ```console
 $ name search --space common 山田 < ./filter.json | tee result.tsv
