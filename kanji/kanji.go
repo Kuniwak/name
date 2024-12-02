@@ -1,35 +1,9 @@
 package kanji
 
 import (
-	"fmt"
 	"github.com/Kuniwak/name/kanji/jinmei"
 	"github.com/Kuniwak/name/kanji/joyo"
-	"github.com/Kuniwak/name/kanji/types"
 )
-
-func LoadKanji() map[rune]*types.Kanji {
-	strokes := LoadStrokes()
-	yomis := LoadYomi()
-
-	if len(strokes) != len(yomis) {
-		panic(fmt.Sprintf("strokes and yomis have different length"))
-	}
-
-	kanji := make(map[rune]*types.Kanji)
-	for k, v := range strokes {
-		yomi, ok := yomis[k]
-		if !ok {
-			panic(fmt.Sprintf("yomi not found for %c", k))
-		}
-
-		kanji[k] = &types.Kanji{
-			Strokes: v,
-			Yomi:    yomi,
-		}
-	}
-
-	return kanji
-}
 
 func LoadStrokes() map[rune]byte {
 	joyos := joyo.LoadStrokes()

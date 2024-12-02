@@ -165,7 +165,7 @@
 よくある人名の空間から名前候補を探索します。時間はほとんどかかりません。
 
 ```console
-$ name --space full 山田 < ./filter.json | tee result.tsv
+$ name search --space full 山田 < ./filter.json | tee result.tsv
 評点    画数    名前    読み    天格    地格    人格    外格    総格
 11      23      亜希保  アキホ  大凶    大吉    大吉    吉      大吉
 11      26      啓穂    アキホ  大凶    吉      大大吉  大吉    吉
@@ -177,11 +177,35 @@ $ name --space full 山田 < ./filter.json | tee result.tsv
 常用漢字+人名用漢字の空間から名前候補を探索します。かなり時間がかかります。
 
 ```console
-$ name --space common 山田 < ./filter.json | tee result.tsv
+$ name search --space common 山田 < ./filter.json | tee result.tsv
 評点	画数	名前	読み	天格	地格	人格	外格	総格
 12	25	票羽河	ヒョウ	大凶	吉	大大吉	大吉	大吉
 13	25	票応応	ヒョウ	大凶	吉	大大吉	大大吉	大吉
 ...
+```
+
+### 名前判定
+
+```console
+$ name info 山田 太郎 タロウ
+評点    画数    名前    読み    天格    地格    人格    外格    総格
+8       13      太郎    タロウ  吉      大吉    大凶    大凶    大吉
+```
+
+### フィルタ検査
+
+```console
+$ name filter validate < filter.json
+$ echo $?
+0
+```
+
+### フィルタ試験
+
+```console
+$ name filter try 山田 太郎 タロウ < filter.json
+$ echo $?
+1
 ```
 
 ライセンス

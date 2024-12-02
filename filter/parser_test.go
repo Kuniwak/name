@@ -8,7 +8,6 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	yomiMap := kanji.LoadYomi()
 	strokesMap := kanji.LoadStrokes()
 
 	tests := map[string]struct {
@@ -103,7 +102,7 @@ func TestParse(t *testing.T) {
 
 	for name, c := range tests {
 		t.Run(name, func(t *testing.T) {
-			actual, err := Parse([]byte(c.input), yomiMap)
+			actual, err := Parse([]byte(c.input))
 			if err != nil {
 				t.Error(err.Error())
 				return
