@@ -3,18 +3,24 @@ package gen
 import (
 	"github.com/Kuniwak/name/config"
 	"github.com/Kuniwak/name/eval"
-	"github.com/Kuniwak/name/sliceutil"
+	"github.com/Kuniwak/name/namelti"
+	"github.com/shogo82148/go-mecab"
 )
 
-func NewFullSpaceGenerator(strokes map[rune]byte, yomiMap map[rune][][]rune) GenerateFunc {
+func NewFullSpaceGenerator(strokes map[rune]byte, dictDir string, nBest int) (GenerateFunc, error) {
+	tagger, err := mecab.New(map[string]string{"dicdir": dictDir})
+	if err != nil {
+		return nil, err
+	}
+
 	return func(familyName []rune, opts Options, ch chan<- Generated) {
 		m := config.MaxStrokes - eval.SumStrokes(familyName, strokes)
-		fullSpaceGenerator([]rune{}, 0, m, opts, strokes, yomiMap, ch)
+		fullSpaceGenerator([]rune{}, 0, m, opts, strokes, tagger, nBest, ch)
 		close(ch)
-	}
+	}, nil
 }
 
-func fullSpaceGenerator(current []rune, currentStrokes, maxStrokes byte, opts Options, strokesMap map[rune]byte, yomiMap map[rune][][]rune, ch chan<- Generated) {
+func fullSpaceGenerator(current []rune, currentStrokes, maxStrokes byte, opts Options, strokesMap map[rune]byte, tagger mecab.MeCab, nBest int, ch chan<- Generated) {
 	if len(current) >= opts.MaxLength {
 		return
 	}
@@ -26,32 +32,31 @@ func fullSpaceGenerator(current []rune, currentStrokes, maxStrokes byte, opts Op
 
 		newCurrent := append(append([]rune{}, current...), r)
 		if len(newCurrent) >= opts.MinLength {
-			emit(ch, newCurrent, yomiMap)
+			if err := emit(ch, newCurrent, tagger, nBest); err != nil {
+
+			}
 		}
 
-		fullSpaceGenerator(newCurrent, currentStrokes+stroke, maxStrokes, opts, strokesMap, yomiMap, ch)
+		fullSpaceGenerator(newCurrent, currentStrokes+stroke, maxStrokes, opts, strokesMap, tagger, nBest, ch)
 	}
 }
 
-func emit(ch chan<- Generated, givenName []rune, yomiMap map[rune][][]rune) {
-	rsss := make([][][]rune, len(givenName))
-
-	for i, r := range givenName {
-		yomis := yomiMap[r]
-		rsss[i] = yomis
+func emit(ch chan<- Generated, givenName []rune, tagger mecab.MeCab, nBest int) error {
+	t, err := namelti.NewTranscripter(tagger)
+	if err != nil {
+		return err
 	}
-
-	c := sliceutil.Cartesian(rsss)
-	yomis := make([][]rune, len(c))
-	for i, rs := range c {
-		yomis[i] = sliceutil.Flatten(rs)
+	yomis, err := t.Transcript(string(givenName), nBest)
+	if err != nil {
+		return err
 	}
 
 	for _, yomi := range yomis {
 		ch <- Generated{
 			GivenName:  givenName,
-			Yomi:       yomi,
-			YomiString: string(yomi),
+			Yomi:       []rune(yomi),
+			YomiString: yomi,
 		}
 	}
+	return nil
 }
