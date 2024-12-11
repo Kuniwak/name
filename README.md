@@ -161,7 +161,7 @@ EXAMPLES
 よくある人名の空間から名前候補を探索します。時間はほとんどかかりません。
 
 ```console
-$ name search --space full 山田 < ./filter.json | tee result.tsv
+$ name search --space common 山田 < ./filter.json | tee result.tsv
 評点    画数    名前    読み    天格    地格    人格    外格    総格
 11      23      亜希保  アキホ  大凶    大吉    大吉    吉      大吉
 11      26      啓穂    アキホ  大凶    吉      大大吉  大吉    吉
@@ -173,7 +173,7 @@ $ name search --space full 山田 < ./filter.json | tee result.tsv
 常用漢字+人名用漢字の空間から名前候補を探索します。かなり時間がかかります。現実的な時間で探索を終えるために `--max-length` を指定するなら `3` 以下を推奨します。
 
 ```console
-$ name search --space common 山田 < ./filter.json | tee result.tsv
+$ name search --space full 山田 < ./filter.json | tee result.tsv
 評点	画数	名前	読み	天格	地格	人格	外格	総格
 14      15      隅己    スミキ  吉      大大吉  吉      大吉    大吉
 15      24      隅期    スミキ  吉      大大吉  吉      大大吉  大吉
