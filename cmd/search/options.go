@@ -7,6 +7,7 @@ import (
 	"github.com/Kuniwak/name/filter"
 	"github.com/Kuniwak/name/gen"
 	"io"
+	"os"
 )
 
 type Options struct {
@@ -25,6 +26,8 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap m
 	space := flags.String("space", "common", "Search spaces (available: full, common)")
 	minLength := flags.Int("min-length", 1, "Minimum length of a given name")
 	maxLength := flags.Int("max-length", 3, "Maximum length of a given name")
+	unsafeYomiCount := flags.Int("yomi-count", 5, "Number of Yomi-Gana candidates")
+	unsafeDirDict := flags.String("dir-dict", "/opt/homebrew/opt/mecab-ipadic/lib/mecab/dic/ipadic", "Directory of MeCab dictionary (full space only)")
 
 	flags.Usage = func() {
 		o := flags.Output()
@@ -64,10 +67,29 @@ EXAMPLES
 		}
 	}
 
+	yomiCount := *unsafeYomiCount
+	if yomiCount < 1 {
+		return nil, errors.New("yomi-count must be greater than or equal to 1")
+	}
+
+	stat, err := os.Stat(*unsafeDirDict)
+	if err != nil {
+		return nil, fmt.Errorf("failed to stat %q: %w", *unsafeDirDict, err)
+	}
+
+	if !stat.IsDir() {
+		return nil, fmt.Errorf("%q is not a directory", *unsafeDirDict)
+	}
+	dirDict := *unsafeDirDict
+
 	var genFunc gen.GenerateFunc
 	switch *space {
 	case "full":
-		genFunc = gen.NewFullSpaceGenerator(strokesMap, yomiMap)
+		var err error
+		genFunc, err = gen.NewFullSpaceGenerator(strokesMap, dirDict, yomiCount)
+		if err != nil {
+			return nil, err
+		}
 	case "common":
 		genFunc = gen.NewCommonSpaceGenerator(strokesMap)
 	default:
