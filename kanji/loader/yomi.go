@@ -15,7 +15,7 @@ func LoadYomi(bs []byte) map[rune][][]rune {
 
 	m := make(map[rune][][]rune)
 	for _, y := range yomis {
-		r := []rune(y.Kanji)[0]
+		r := []rune(norm.NFC.String(y.Kanji))[0]
 
 		rs := make([][]rune, len(y.Yomi))
 		for i, yomi := range y.Yomi {
