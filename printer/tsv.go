@@ -6,12 +6,22 @@ import (
 	"io"
 )
 
-func PrintTSVHeader(w io.Writer) {
-	_, _ = io.WriteString(w, "評点\t画数\t名前\t読み\t天格\t地格\t人格\t外格\t総格\n")
+var TSVHeaders = []string{
+	"評点", "画数", "名前", "読み", "性別", "天格", "地格", "人格", "外格", "総格",
 }
 
 var tab = []byte("\t")
 var newline = []byte("\n")
+
+func PrintTSVHeader(w io.Writer) {
+	for i, header := range TSVHeaders {
+		if i > 0 {
+			_, _ = w.Write(tab)
+		}
+		_, _ = io.WriteString(w, header)
+	}
+	_, _ = w.Write(newline)
+}
 
 func PrintTSVRow(w io.Writer, d filter.Target) {
 	_, _ = fmt.Fprintf(w, "%d", d.EvalResult.Total())
@@ -25,6 +35,8 @@ func PrintTSVRow(w io.Writer, d filter.Target) {
 	for _, r := range d.Yomi {
 		_, _ = fmt.Fprintf(w, "%c", r)
 	}
+	_, _ = w.Write(tab)
+	_, _ = io.WriteString(w, d.Sex.String())
 	_, _ = w.Write(tab)
 	_, _ = io.WriteString(w, d.EvalResult.Tenkaku.String())
 	_, _ = w.Write(tab)

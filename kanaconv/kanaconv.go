@@ -1,4 +1,4 @@
-package kana
+package kanaconv
 
 import "unicode"
 

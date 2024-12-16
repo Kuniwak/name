@@ -26,28 +26,7 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap m
 		_, _ = stderr.Write([]byte("Usage: name filter test <familyName> <givenName> <yomi>\n"))
 		_, _ = fmt.Fprintf(stderr, `
 STDIN
-	JSON filter:
-
-		filter: true or false or and or or or not or minRank or minTotalRank or mora or strokes or yomiCount or yomi or kanjiCount or kanji or length
-		true: {"true": {}}
-		false: {"false": {}}
-		and: {"and": [filter...]}
-		or: {"or": [filter...]}
-		not: {"not": filter}
-		minRank: {"minRank": rank}
-		rank: 0-4 (4=大大吉, 3=大吉, 2=吉, 1=凶, 0=大凶)
-		minTotalRank: {"minTotalRank": byte}
-		mora: {"maxMora": count}
-		strokes: {"strokes": count}
-		yomiCount: {"yomiCount": {"rune": rune, "count": count}}
-		yomi: {"yomi": match}
-		kanjiCount: {"kanjiCount": {"rune": rune, "count": count}}
-		kanji: {"kanji": match}
-		length: {"length": count}
-		count: {"equal": byte} or {"greaterThan": byte} or {"lessThan": byte}
-		match: {"equal": string} or {"contain": string} or {"startWith": string} or {"endWith": string}
-		byte: 0-255
-		rune: string only containing one rune
+	Filter notated in JSON. See "name filter validate --help" for details.
 
 EXAMPLES
 	$ name filter test 田中 太郎 たなかたろう < filter.json
@@ -57,7 +36,6 @@ EXAMPLES
 	$ name filter test 田中 太郎 たなかたろう < filter.json
 	$ echo $?
 	1
-)
 `)
 	}
 

@@ -35,7 +35,7 @@ OPTIONS
         Number of Yomi-Gana candidates (default 5)
 
 STDIN
-        See $ name filter try -h
+        Filter notated in JSON. See "name filter validate --help" for details.
 
 EXAMPLES
         $ name search 山田 < ./filter.example.json
@@ -55,6 +55,31 @@ EXAMPLES
 $ name filter validate -h
 Usage: name filter validate
 
+STDIN
+        Filter notated in JSON.
+
+                filter       := true | false | and | or | not | sex | length | mora | strokes | minRank | minTotalRank |
+                        yomiCount | yomi | kanjiCount | kanji
+                true         := {"true": {}}
+                false        := {"false": {}}
+                and          := {"and": [filter...]}
+                or           := {"or": [filter...]}
+                not          := {"not": filter}
+                sex          := {"sex": "asexual" | "male" | "female"}
+                length       := {"length": count}
+                mora         := {"maxMora": count}
+                strokes      := {"strokes": count}
+                minRank      := {"minRank": 0-4} (4=大大吉, 3=大吉, 2=吉, 1=凶, 0=大凶)
+                minTotalRank := {"minTotalRank": byte}
+                yomiCount    := {"yomiCount": {"rune": rune, "count": count}}
+                yomi         := {"yomi": match}
+                kanjiCount   := {"kanjiCount": {"rune": rune, "count": count}}
+                kanji        := {"kanji": match}
+                count        := {"equal": byte} | {"greaterThan": byte} | {"lessThan": byte}
+                match        := {"equal": string} | {"contain": string} | {"startWith": string} | {"endWith": string}
+                byte         := 0-255
+                rune         := string that contains only one rune
+
 EXAMPLES
         $ name filter validate < valid-filter.json
         $ echo $?
@@ -64,41 +89,35 @@ EXAMPLES
         $ echo $?
         1
 
-$ name filter try -h
-Usage: name filter try <familyName> <givenName> <yomi>
+$ name filter test -h
+Usage: name filter test <familyName> <givenName> <yomi>
 
 STDIN
-        JSON filter:
-
-              filter: true or false or and or or or not or minRank or minTotalRank or mora or strokes or yomiCount or yomi or kanjiCount or kanji or length
-              true: {"true": {}}
-              false: {"false": {}}
-              and: {"and": [filter...]}
-              or: {"or": [filter...]}
-              not: {"not": filter}
-              minRank: {"minRank": rank}
-              rank: 0-4 (4=大大吉, 3=大吉, 2=吉, 1=凶, 0=大凶)
-              minTotalRank: {"minTotalRank": byte}
-              mora: {"maxMora": count}
-              strokes: {"strokes": count}
-              yomiCount: {"yomiCount": {"rune": rune, "count": count}}
-              yomi: {"yomi": match}
-              kanjiCount: {"kanjiCount": {"rune": rune, "count": count}}
-              kanji: {"kanji": match}
-              length: {"length": count}
-              count: {"equal": byte} or {"greaterThan": byte} or {"lessThan": byte}
-              match: {"equal": string} or {"contain": string} or {"startWith": string} or {"endWith": string}
-              byte: 0-255
-              rune: string only containing one rune
+        Filter notated in JSON. See "name filter validate --help" for details.
 
 EXAMPLES
-        $ name filter try 田中 太郎 たなかたろう < filter.json
+        $ name filter test 田中 太郎 たなかたろう < filter.json
         $ echo $?
         0
 
-        $ name filter try 田中 太郎 たなかたろう < filter.json
+        $ name filter test 田中 太郎 たなかたろう < filter.json
         $ echo $?
         1
+        
+$ name filter apply -h
+Usage: name filter apply <familyName> --to <path>
+OPTIONS
+  -to name search
+        path to the result file of name search
+
+STDIN
+        Filter notated in JSON. See "name filter validate --help" for details.
+
+EXAMPLES
+        $ name filter apply 山田 --to /path/to/result.tsv < ./filter.example.json
+        評点    画数    名前    読み    天格    地格    人格    外格    総格
+        15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
+        15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
 ```
 </details>
 
@@ -111,17 +130,20 @@ EXAMPLES
 | 論理積        | `{"and": [filter...]}`                                                  | `{"and": [{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}, {"yomiCount": {"rune": "イ", "count": {"equal": 1}}}]}` |
 | 論理和        | `{"or": [filter...]}`                                                   | `{"or": [{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}, {"yomiCount": {"rune": "イ", "count": {"equal": 1}}}]}`  |
 | 否定論理       | `{"not": filter}`                                                       | `{"not": {"yomiCount": {"rune": "ア", "count": {"equal": 1}}}}`                                                        |
-| 五格それぞれの最小値 | `{"minRank": count}`（`4`=大大吉, `3`=大吉, `2`=吉, `1`=凶, `0`=大凶）             | `{"minRank": 3}`                                                                                                      |
-| 五格の合計値の最小値 | `{"minTotalRank": byte}`                                                | `{"minTotalRank": 11}`                                                                                                |
+| 性別         | `{"sex": sex}`                                                          | `{"sex": "asexual"}`                                                                                                  |
+| 長さ         | `{"length": count}`                                                     | `{"length": 3}`                                                                                                       |
 | 読み仮名のモーラ数  | `{"mora": count}`                                                       | `{"mora": {"equal": 3}}`                                                                                              |
+| よくある読み仮名   | `{"commonYomi": {}}`                                                    | `{"commonYomi": {}}`                                                                                                  |
 | 画数         | `{"strokes": count}`                                                    | `{"strokes": {"lessThan": 25}}`                                                                                       |
+| 五格それぞれの最小値 | `{"minRank": 0-4}`（`4`=大大吉, `3`=大吉, `2`=吉, `1`=凶, `0`=大凶）               | `{"minRank": 3}`                                                                                                      |
+| 五格の合計値の最小値 | `{"minTotalRank": byte}`                                                | `{"minTotalRank": 11}`                                                                                                |
 | 指定した読み仮名の数 | `{"yomiCount": {"rune": string, "count": count}}`                       | `{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}`                                                                 |
 | 読み仮名のマッチ   | `{"yomi": match}`                                                       | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
 | 漢字のマッチ     | `{"kanji": match}`                                                      | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
 | 指定した漢字の数   | `{"kanjiCount": {"rune": string, "count": count}}`                      | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
-| よくある読み仮名   | `{"commonYomi": {}}`                                                    | `{"commonYomi": {}}`                                                                                                  |
 | `count`    | `{"equal": byte}` or `{"lessThan": byte}` or `{"greaterThan": byte}`    | `{"equal": 1}`                                                                                                        |
 | `match`    | `{"equal": string}` or `{"startWith": string}` or `{"endWith": string}` | `{"equal": "タロウ"}`                                                                                                    |
+| `sex`      | `"asexual"` or `"male"` or `"female"`                                   | `{"sex": "asexual"}`                                                                                                  |
 
 <details>
 <summary>フィルタの例</summary>
@@ -129,10 +151,11 @@ EXAMPLES
 ```json
 {
   "and": [
+    {"sex": "male"},
+    {"commonYomi": {}},
     {"mora": {"equal": 3}},
     {"minRank": 2},
     {"minTotalRank": 11},
-    {"commonYomi": {}},
     {
       "or": [
         {
@@ -172,9 +195,10 @@ EXAMPLES
 
 ```console
 $ name search --space common 山田 < ./filter.json | tee result.tsv
-評点    画数    名前    読み    天格    地格    人格    外格    総格
-11      23      亜希保  アキホ  大凶    大吉    大吉    吉      大吉
-11      26      啓穂    アキホ  大凶    吉      大大吉  大吉    吉
+$ ./name search --space common 山田 < ./filter.example.json
+評点    画数    名前    読み    性別    天格    地格    人格    外格    総格
+15      16      匠真    ショウマ        両性    吉      大吉    大吉    大吉    大大吉
+14      23      奨真    ショウマ        両性    吉      大吉    吉      大吉    大大吉
 ...
 ```
 
@@ -183,10 +207,10 @@ $ name search --space common 山田 < ./filter.json | tee result.tsv
 常用漢字+人名用漢字の空間から名前候補を探索します。かなり時間がかかります。現実的な時間で探索を終えるために `--max-length` を指定するなら `3` 以下を推奨します。
 
 ```console
-$ name search --space full 山田 < ./filter.json | tee result.tsv
-評点	画数	名前	読み	天格	地格	人格	外格	総格
-14      15      隅己    スミキ  吉      大大吉  吉      大吉    大吉
-15      24      隅期    スミキ  吉      大大吉  吉      大大吉  大吉
+$ name search --space full 山田 --max-length 2 < ./filter.json | tee result.tsv
+評点    画数    名前    読み    性別    天格    地格    人格    外格    総格
+14      16      丈辞    ジョウジ        男性    吉      大吉    吉      大吉    大大吉
+13      21      丈騎    タケキ  男性    吉      大吉    吉      大吉    大吉
 ...
 ```
 
@@ -209,9 +233,20 @@ $ echo $?
 ### フィルタ試験
 
 ```console
-$ name filter try 山田 太郎 タロウ < filter.json
+$ name filter test 山田 太郎 タロウ < filter.json
 $ echo $?
 1
+```
+
+
+### フィルタ再適用
+
+```console
+$ name filter apply 山田 --to /path/to/result.tsv < ./filter.json
+評点    画数    名前    読み    性別    天格    地格    人格    外格    総格
+14      16      丈辞    ジョウジ        男性    吉      大吉    吉      大吉    大大吉
+13      21      丈騎    タケキ  男性    吉      大吉    吉      大吉    大吉
+...
 ```
 
 インストール方法

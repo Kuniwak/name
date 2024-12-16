@@ -23,6 +23,7 @@ type Data struct {
 	KanjiMatch   *MatchFuncData  `json:"kanji,omitempty"`
 	CommonYomi   *Unit           `json:"commonYomi,omitempty"`
 	Length       *ByteFuncData   `json:"length,omitempty"`
+	Sex          *string         `json:"sex,omitempty"`
 }
 
 type Unit struct{}
@@ -187,6 +188,19 @@ func Build(seed *Data) (Func, error) {
 			return nil, err
 		}
 		return Length(countFunc), nil
+	}
+
+	if seed.Sex != nil {
+		switch *seed.Sex {
+		case "asexual":
+			return Sex(Asexual), nil
+		case "male":
+			return Sex(Male), nil
+		case "female":
+			return Sex(Female), nil
+		default:
+			return nil, fmt.Errorf("unknown sex: %s", *seed.Sex)
+		}
 	}
 
 	return nil, fmt.Errorf("empty data")

@@ -2,6 +2,7 @@ package kana
 
 import (
 	_ "embed"
+	kana2 "github.com/Kuniwak/name/kanaconv"
 	"github.com/Kuniwak/name/kanji/loader"
 )
 
@@ -16,7 +17,7 @@ func LoadYomi() map[rune][][]rune {
 	strokes := LoadStrokes()
 	result := make(map[rune][][]rune)
 	for kana := range strokes {
-		result[kana] = [][]rune{Htok([]rune{kana})}
+		result[kana] = [][]rune{kana2.Htok([]rune{kana})}
 	}
 	return result
 }

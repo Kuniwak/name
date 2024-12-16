@@ -5,6 +5,7 @@ import (
 	"github.com/Kuniwak/name/eval"
 	"github.com/Kuniwak/name/filter"
 	"github.com/Kuniwak/name/printer"
+	"github.com/Kuniwak/name/sex"
 	"github.com/google/go-cmp/cmp"
 	"reflect"
 	"testing"
@@ -17,6 +18,7 @@ func TestParseTSV(t *testing.T) {
 		YomiString: "タロウ",
 		Strokes:    13,
 		Mora:       3,
+		Sex:        sex.Male,
 		EvalResult: eval.Result{
 			Tenkaku: eval.Kichi,
 			Jinkaku: eval.DaiKyo,

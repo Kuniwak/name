@@ -1,5 +1,6 @@
 {
   "and": [
+    {"sex": "male"},
     {"mora": {"equal": 3}},
     {"minRank": 2},
     {"minTotalRank": 11},

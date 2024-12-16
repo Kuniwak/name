@@ -24,7 +24,7 @@ func NewCommonSpaceGenerator(strokesMap map[rune]byte) GenerateFunc {
 				givenNameString := norm.NFC.String(name)
 				givenName := []rune(givenNameString)
 
-				if !kanji.IsValid(givenName, strokesMap) || len(givenName) < int(opts.MinLength) || len(givenName) > int(opts.MaxLength) {
+				if !kanji.IsValid(givenName, strokesMap) || len(givenName) < opts.MinLength || len(givenName) > opts.MaxLength {
 					continue
 				}
 

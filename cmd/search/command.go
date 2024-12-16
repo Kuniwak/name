@@ -8,6 +8,7 @@ import (
 	"github.com/Kuniwak/name/kanji"
 	"github.com/Kuniwak/name/printer"
 	"github.com/Kuniwak/name/search"
+	"github.com/Kuniwak/name/sex"
 	"runtime"
 	"sync"
 )
@@ -32,12 +33,21 @@ var SubCommand = cli2.SubCommand{
 			MinLength: opts.MinLength,
 			MaxLength: opts.MaxLength,
 		}
-		Main(opts.FamilyName, opts.GeneratorFunc, genOpts, opts.Filter, strokesMap, printer.NewTSVPrinter(procInout.Stdout))
+
+		Main(
+			opts.FamilyName,
+			opts.GeneratorFunc,
+			genOpts,
+			opts.Filter,
+			strokesMap,
+			printer.NewTSVPrinter(procInout.Stdout),
+			sex.New(sex.LoadMaleNames(), sex.LoadFemaleNames()),
+		)
 		return 0
 	},
 }
 
-func Main(familyName []rune, genFunc gen.GenerateFunc, genOpts gen.Options, filterFunc filter.Func, strokesMap map[rune]byte, printFunc printer.Func) {
+func Main(familyName []rune, genFunc gen.GenerateFunc, genOpts gen.Options, filterFunc filter.Func, strokesMap map[rune]byte, printFunc printer.Func, sexFunc sex.Func) {
 	candCh := make(chan gen.Generated)
 	resCh := make(chan filter.Target)
 
@@ -55,14 +65,7 @@ func Main(familyName []rune, genFunc gen.GenerateFunc, genOpts gen.Options, filt
 		parallelism = 1
 	}
 
-	wg.Add(parallelism)
-	for i := 0; i < parallelism; i++ {
-		go func() {
-			defer wg.Done()
-			search.Search(familyName, candCh, resCh, filterFunc, strokesMap)
-		}()
-	}
+	search.Parallel(familyName, candCh, resCh, filterFunc, strokesMap, sexFunc, parallelism)
 
 	wg.Wait()
-	close(resCh)
 }

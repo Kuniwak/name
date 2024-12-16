@@ -6,6 +6,7 @@ import (
 	"github.com/Kuniwak/name/eval"
 	"github.com/Kuniwak/name/filter"
 	"github.com/Kuniwak/name/mora"
+	"github.com/Kuniwak/name/sex"
 	"golang.org/x/text/unicode/norm"
 	"io"
 	"strconv"
@@ -50,7 +51,7 @@ func ParseTSV(r io.Reader, ch chan<- filter.Target) error {
 			continue
 		}
 		fields := strings.Split(line, "\t")
-		if len(fields) != 9 {
+		if len(fields) != 10 {
 			return fmt.Errorf("invalid number of fields: %q", line)
 		}
 
@@ -69,27 +70,29 @@ func ParseTSV(r io.Reader, ch chan<- filter.Target) error {
 
 		m := mora.Count(yomiRunes)
 
-		tenkaku, err := ParseRank(fields[4])
+		sex := ParseSex(fields[4])
+
+		tenkaku, err := ParseRank(fields[5])
 		if err != nil {
 			return fmt.Errorf("invalid tenkaku: %w", err)
 		}
 
-		chikaku, err := ParseRank(fields[5])
+		chikaku, err := ParseRank(fields[6])
 		if err != nil {
 			return fmt.Errorf("invalid chikaku: %w", err)
 		}
 
-		jinkaku, err := ParseRank(fields[6])
+		jinkaku, err := ParseRank(fields[7])
 		if err != nil {
 			return fmt.Errorf("invalid jinkaku: %w", err)
 		}
 
-		gaikaku, err := ParseRank(fields[7])
+		gaikaku, err := ParseRank(fields[8])
 		if err != nil {
 			return fmt.Errorf("invalid gaikaku: %w", err)
 		}
 
-		sokaku, err := ParseRank(fields[8])
+		sokaku, err := ParseRank(fields[9])
 		if err != nil {
 			return fmt.Errorf("invalid sokaku: %w", err)
 		}
@@ -100,6 +103,7 @@ func ParseTSV(r io.Reader, ch chan<- filter.Target) error {
 			YomiString: yomi,
 			Strokes:    strokes,
 			Mora:       m,
+			Sex:        sex,
 			EvalResult: eval.Result{
 				Tenkaku: tenkaku,
 				Jinkaku: jinkaku,
@@ -115,4 +119,17 @@ func ParseTSV(r io.Reader, ch chan<- filter.Target) error {
 	}
 
 	return nil
+}
+
+func ParseSex(s string) sex.Sex {
+	switch s {
+	case sex.AsexualString:
+		return sex.Asexual
+	case sex.MaleString:
+		return sex.Male
+	case sex.FemaleString:
+		return sex.Female
+	default:
+		return sex.Unknown
+	}
 }

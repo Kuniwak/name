@@ -26,7 +26,7 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer) (Options, er
 		flags.PrintDefaults()
 		_, _ = fmt.Fprintf(stderr, `
 STDIN
-	See $ name filter test -h
+	Filter notated in JSON. See "name filter validate --help" for details.
 
 EXAMPLES
 	$ name filter apply 山田 --to /path/to/result.tsv < ./filter.example.json 

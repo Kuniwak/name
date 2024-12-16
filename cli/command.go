@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -37,9 +38,14 @@ func CommandWithSubCommands(name string, subCommands map[string]SubCommand) Comm
 		}
 
 		if err := flags.Parse(args); err != nil {
-			if err == flag.ErrHelp {
+			if errors.Is(err, flag.ErrHelp) {
 				return 0
 			}
+			return 1
+		}
+
+		if len(flags.Args()) == 0 {
+			Usage(procInout.Stderr, name, subCommands)
 			return 1
 		}
 
