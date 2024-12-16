@@ -70,7 +70,7 @@ func ParseTSV(r io.Reader, ch chan<- filter.Target) error {
 
 		m := mora.Count(yomiRunes)
 
-		sex := ParseSex(fields[4])
+		s := ParseSex(fields[4])
 
 		tenkaku, err := ParseRank(fields[5])
 		if err != nil {
@@ -103,7 +103,7 @@ func ParseTSV(r io.Reader, ch chan<- filter.Target) error {
 			YomiString: yomi,
 			Strokes:    strokes,
 			Mora:       m,
-			Sex:        sex,
+			Sex:        s,
 			EvalResult: eval.Result{
 				Tenkaku: tenkaku,
 				Jinkaku: jinkaku,
