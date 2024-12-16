@@ -32,6 +32,16 @@
           ]
         }
       ]
-    }
+    },
+    {"or": [
+      {"kanjiCount": {"rune": "死", "count": {"equal": 0}}},
+      {"kanjiCount": {"rune": "亡", "count": {"equal": 0}}},
+      {"kanjiCount": {"rune": "訃", "count": {"equal": 0}}},
+      {"kanjiCount": {"rune": "殺", "count": {"equal": 0}}},
+      {"kanjiCount": {"rune": "淫", "count": {"equal": 0}}},
+      {"kanjiCount": {"rune": "菌", "count": {"equal": 0}}},
+      {"kanjiCount": {"rune": "臭", "count": {"equal": 0}}},
+      {"kanjiCount": {"rune": "股", "count": {"equal": 0}}}
+    ]}
   ]
 }

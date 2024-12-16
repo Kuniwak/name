@@ -15,7 +15,7 @@ func PrintTSVHeader(w io.Writer) {
 func PrintTSVRow(w io.Writer, d filter.Target) {
 	_, _ = fmt.Fprintf(w, "%d\t", d.EvalResult.Total())
 	_, _ = fmt.Fprintf(w, "%d\t", d.Strokes)
-	for _, r := range d.GivenName {
+	for _, r := range d.Kanji {
 		_, _ = fmt.Fprintf(w, "%c", r)
 	}
 	_, _ = w.Write([]byte("\t"))

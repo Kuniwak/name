@@ -4,21 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Kuniwak/name/eval"
+	"golang.org/x/text/unicode/norm"
 )
 
 type Data struct {
-	And          *[]Data        `json:"and,omitempty"`
-	Or           *[]Data        `json:"or,omitempty"`
-	Not          *Data          `json:"not,omitempty"`
-	MinRank      *eval.Rank     `json:"minRank,omitempty"`
-	MinTotalRank *byte          `json:"minTotalRank,omitempty"`
-	Mora         *ByteFuncData  `json:"mora,omitempty"`
-	Strokes      *ByteFuncData  `json:"strokes,omitempty"`
-	True         *Unit          `json:"true,omitempty"`
-	False        *Unit          `json:"false,omitempty"`
-	YomiCount    *YomiCountData `json:"yomiCount,omitempty"`
-	CommonYomi   *Unit          `json:"commonYomi,omitempty"`
-	Length       *ByteFuncData  `json:"length,omitempty"`
+	And          *[]Data         `json:"and,omitempty"`
+	Or           *[]Data         `json:"or,omitempty"`
+	Not          *Data           `json:"not,omitempty"`
+	MinRank      *eval.Rank      `json:"minRank,omitempty"`
+	MinTotalRank *byte           `json:"minTotalRank,omitempty"`
+	Mora         *ByteFuncData   `json:"mora,omitempty"`
+	Strokes      *ByteFuncData   `json:"strokes,omitempty"`
+	True         *Unit           `json:"true,omitempty"`
+	False        *Unit           `json:"false,omitempty"`
+	YomiCount    *YomiCountData  `json:"yomiCount,omitempty"`
+	YomiMatch    *MatchFuncData  `json:"yomi,omitempty"`
+	KanjiCount   *KanjiCountData `json:"kanjiCount,omitempty"`
+	KanjiMatch   *MatchFuncData  `json:"kanji,omitempty"`
+	CommonYomi   *Unit           `json:"commonYomi,omitempty"`
+	Length       *ByteFuncData   `json:"length,omitempty"`
 }
 
 type Unit struct{}
@@ -26,6 +30,21 @@ type Unit struct{}
 type YomiCountData struct {
 	Rune  string       `json:"rune"`
 	Count ByteFuncData `json:"count"`
+}
+
+type YomiMatchData struct {
+	Runes string        `json:"runes"`
+	Match MatchFuncData `json:"match"`
+}
+
+type KanjiCountData struct {
+	Rune  string       `json:"rune"`
+	Count ByteFuncData `json:"count"`
+}
+
+type KanjiMatchData struct {
+	Runes string        `json:"runes"`
+	Match MatchFuncData `json:"match"`
 }
 
 type ByteFuncData struct {
@@ -44,6 +63,13 @@ type IntFuncData struct {
 	LessThan    *int `json:"lessThan,omitempty"`
 	Equal       *int `json:"equal,omitempty"`
 	GreaterThan *int `json:"greaterThan,omitempty"`
+}
+
+type MatchFuncData struct {
+	Equal     *string `json:"equal,omitempty"`
+	StartWith *string `json:"startWith,omitempty"`
+	EndWith   *string `json:"endWith,omitempty"`
+	Contain   *string `json:"contain,omitempty"`
 }
 
 func Parse(bs []byte) (*Data, error) {
@@ -120,11 +146,35 @@ func Build(seed *Data) (Func, error) {
 		if err != nil {
 			return nil, err
 		}
-		return YomiCount([]rune(seed.YomiCount.Rune)[0], countFunc), nil
+		return YomiCount([]rune(norm.NFC.String(seed.YomiCount.Rune))[0], countFunc), nil
+	}
+
+	if seed.YomiMatch != nil {
+		matchFunc, err := BuildMatchFunc(*seed.YomiMatch)
+		if err != nil {
+			return nil, err
+		}
+		return YomiMatch(matchFunc), nil
 	}
 
 	if seed.CommonYomi != nil {
 		return CommonYomi(), nil
+	}
+
+	if seed.KanjiCount != nil {
+		countFunc, err := BuildByteFunc(seed.KanjiCount.Count)
+		if err != nil {
+			return nil, err
+		}
+		return KanjiCount([]rune(norm.NFC.String(seed.KanjiCount.Rune))[0], countFunc), nil
+	}
+
+	if seed.KanjiMatch != nil {
+		matchFunc, err := BuildMatchFunc(*seed.KanjiMatch)
+		if err != nil {
+			return nil, err
+		}
+		return KanjiMatch(matchFunc), nil
 	}
 
 	if seed.MinTotalRank != nil {
@@ -156,4 +206,24 @@ func BuildByteFunc(data ByteFuncData) (ByteFunc, error) {
 	}
 
 	return nil, fmt.Errorf("empty count data")
+}
+
+func BuildMatchFunc(data MatchFuncData) (MatchFunc, error) {
+	if data.Equal != nil {
+		return MatchExactly([]rune(norm.NFC.String(*data.Equal))), nil
+	}
+
+	if data.StartWith != nil {
+		return MatchStartsWith([]rune(norm.NFC.String(*data.StartWith))), nil
+	}
+
+	if data.EndWith != nil {
+		return MatchEndsWith([]rune(norm.NFC.String(*data.EndWith))), nil
+	}
+
+	if data.Contain != nil {
+		return MatchContains([]rune(norm.NFC.String(*data.Contain))), nil
+	}
+
+	return nil, fmt.Errorf("empty match data")
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type Target struct {
-	GivenName  []rune
+	Kanji      []rune
 	Yomi       []rune
 	YomiString string
 	Strokes    byte
@@ -15,5 +15,5 @@ type Target struct {
 }
 
 func (t Target) String() string {
-	return fmt.Sprintf("Target{GivenName: %s, Yomi: %s, Strokes: %d, Mora: %d, EvalResult: %s}", string(t.GivenName), string(t.Yomi), t.Strokes, t.Mora, t.EvalResult.String())
+	return fmt.Sprintf("Target{Kanji: %s, Yomi: %s, Strokes: %d, Mora: %d, EvalResult: %s}", string(t.Kanji), string(t.Yomi), t.Strokes, t.Mora, t.EvalResult.String())
 }

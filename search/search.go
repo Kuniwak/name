@@ -21,7 +21,7 @@ func Search(
 		}
 
 		target := filter.Target{
-			GivenName:  generated.GivenName,
+			Kanji:      generated.GivenName,
 			Yomi:       generated.Yomi,
 			YomiString: generated.YomiString,
 			Strokes:    eval.SumStrokes(generated.GivenName, strokesMap),

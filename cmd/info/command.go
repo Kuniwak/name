@@ -34,7 +34,7 @@ var SubCommand = cli.SubCommand{
 		}
 
 		target := filter.Target{
-			GivenName:  opts.GivenName,
+			Kanji:      opts.GivenName,
 			Yomi:       opts.Yomi,
 			YomiString: string(opts.Yomi),
 			Strokes:    eval.SumStrokes(opts.GivenName, strokesMap),

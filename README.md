@@ -70,20 +70,26 @@ Usage: name filter try <familyName> <givenName> <yomi>
 STDIN
         JSON filter:
 
-                filter: true or false or and or or or not or minRank or minTotalRank or mora or strokes or yomiCount or length
-                true: {"true":{}}
-                false: {"false":{}}
-                and: {"and":[filter...]}
-                or: {"or":[filter...]}
-                not: {"not":filter}
-                minRank: {"minRank":rank}
-                rank: 0-4 (4=大大吉, 3=大吉, 2=吉, 1=凶, 0=大凶)
-                minTotalRank: {"minTotalRank":byte}
-                mora: {"maxMora":count}
-                strokes: {"strokes":count}
-                yomiCount: {"yomiCount":{"rune":string,"count":count}}
-                length: {"length":count}
-                count: {"equal":byte} or {"greaterThan":byte} or {"lessThan":byte}
+              filter: true or false or and or or or not or minRank or minTotalRank or mora or strokes or yomiCount or yomi or kanjiCount or kanji or length
+              true: {"true": {}}
+              false: {"false": {}}
+              and: {"and": [filter...]}
+              or: {"or": [filter...]}
+              not: {"not": filter}
+              minRank: {"minRank": rank}
+              rank: 0-4 (4=大大吉, 3=大吉, 2=吉, 1=凶, 0=大凶)
+              minTotalRank: {"minTotalRank": byte}
+              mora: {"maxMora": count}
+              strokes: {"strokes": count}
+              yomiCount: {"yomiCount": {"rune": rune, "count": count}}
+              yomi: {"yomi": match}
+              kanjiCount: {"kanjiCount": {"rune": rune, "count": count}}
+              kanji: {"kanji": match}
+              length: {"length": count}
+              count: {"equal": byte} or {"greaterThan": byte} or {"lessThan": byte}
+              match: {"equal": string} or {"contain": string} or {"startWith": string} or {"endWith": string}
+              byte: 0-255
+              rune: string only containing one rune
 
 EXAMPLES
         $ name filter try 田中 太郎 たなかたろう < filter.json
@@ -98,20 +104,24 @@ EXAMPLES
 
 まずフィルタを用意します。フィルタは名前の候補について真であれば候補を残し、偽であれば候補を除去します。
 
-| 説明         | 構文                                                                   | 例                                                                                                                     |
-|:-----------|:---------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
-| 真          | `{"true": {}}`                                                       | `{"true": {}}`                                                                                                        |
-| 偽          | `{"false": {}}`                                                      | `{"false": {}}`                                                                                                       |
-| 論理積        | `{"and": [filter...]}`                                               | `{"and": [{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}, {"yomiCount": {"rune": "イ", "count": {"equal": 1}}}]}` |
-| 論理和        | `{"or": [filter...]}`                                                | `{"or": [{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}, {"yomiCount": {"rune": "イ", "count": {"equal": 1}}}]}`  |
-| 否定論理       | `{"not": filter}`                                                    | `{"not": {"yomiCount": {"rune": "ア", "count": {"equal": 1}}}}`                                                        |
-| 五格それぞれの最小値 | `{"minRank": count}`（`4`=大大吉, `3`=大吉, `2`=吉, `1`=凶, `0`=大凶）          | `{"minRank": 3}`                                                                                                      |
-| 五格の合計値の最小値 | `{"minTotalRank": byte}`                                             | `{"minTotalRank": 11}`                                                                                                |
-| 読み仮名の文字数   | `{"mora": count}`                                                    | `{"mora": {"equal": 3}}`                                                                                              |
-| 画数         | `{"strokes": count}`                                                 | `{"strokes": {"lessThan": 25}}`                                                                                       |
-| 指定した読み仮名の数 | `{"yomiCount": {"rune": "ア", "count": count}}`                       | `{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}`                                                                 |
-| よくある読み仮名   | `{"commonYomi": {}}`                                                 | `{"commonYomi": {}}`                                                                                                  |
-| `count`    | `{"equal": byte}` or `{"lessThan": byte}` or `{"greaterThan": byte}` | `{"equal": 1}`                                                                                                        |
+| 説明         | 構文                                                                      | 例                                                                                                                     |
+|:-----------|:------------------------------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------|
+| 真          | `{"true": {}}`                                                          | `{"true": {}}`                                                                                                        |
+| 偽          | `{"false": {}}`                                                         | `{"false": {}}`                                                                                                       |
+| 論理積        | `{"and": [filter...]}`                                                  | `{"and": [{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}, {"yomiCount": {"rune": "イ", "count": {"equal": 1}}}]}` |
+| 論理和        | `{"or": [filter...]}`                                                   | `{"or": [{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}, {"yomiCount": {"rune": "イ", "count": {"equal": 1}}}]}`  |
+| 否定論理       | `{"not": filter}`                                                       | `{"not": {"yomiCount": {"rune": "ア", "count": {"equal": 1}}}}`                                                        |
+| 五格それぞれの最小値 | `{"minRank": count}`（`4`=大大吉, `3`=大吉, `2`=吉, `1`=凶, `0`=大凶）             | `{"minRank": 3}`                                                                                                      |
+| 五格の合計値の最小値 | `{"minTotalRank": byte}`                                                | `{"minTotalRank": 11}`                                                                                                |
+| 読み仮名のモーラ数  | `{"mora": count}`                                                       | `{"mora": {"equal": 3}}`                                                                                              |
+| 画数         | `{"strokes": count}`                                                    | `{"strokes": {"lessThan": 25}}`                                                                                       |
+| 指定した読み仮名の数 | `{"yomiCount": {"rune": string, "count": count}}`                       | `{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}`                                                                 |
+| 読み仮名のマッチ   | `{"yomi": match}`                                                       | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
+| 漢字のマッチ     | `{"kanji": match}`                                                      | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
+| 指定した漢字の数   | `{"kanjiCount": {"rune": string, "count": count}}`                      | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
+| よくある読み仮名   | `{"commonYomi": {}}`                                                    | `{"commonYomi": {}}`                                                                                                  |
+| `count`    | `{"equal": byte}` or `{"lessThan": byte}` or `{"greaterThan": byte}`    | `{"equal": 1}`                                                                                                        |
+| `match`    | `{"equal": string}` or `{"startWith": string}` or `{"endWith": string}` | `{"equal": "タロウ"}`                                                                                                    |
 
 <details>
 <summary>フィルタの例</summary>

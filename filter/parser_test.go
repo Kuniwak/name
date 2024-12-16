@@ -70,9 +70,53 @@ func TestParse(t *testing.T) {
 			input:    `{"yomiCount":{"rune":"タ","count":{"lessThan":1}}}`,
 			expected: YomiCount('タ', ByteLessThan(1)),
 		},
+		"YomiEqual": {
+			input:    `{"yomi":{"equal": "タロウ"}}`,
+			expected: YomiMatch(MatchExactly([]rune("タロウ"))),
+		},
+		"YomiStartWith": {
+			input:    `{"yomi":{"startWith": "タロウ"}}`,
+			expected: YomiMatch(MatchStartsWith([]rune("タロウ"))),
+		},
+		"YomiEndWith": {
+			input:    `{"yomi":{"endWith": "タロウ"}}`,
+			expected: YomiMatch(MatchEndsWith([]rune("タロウ"))),
+		},
+		"YomiContain": {
+			input:    `{"yomi":{"contain": "タロウ"}}`,
+			expected: YomiMatch(MatchContains([]rune("タロウ"))),
+		},
 		"CommonYomi": {
 			input:    `{"commonYomi":{}}`,
 			expected: CommonYomi(),
+		},
+		"KanjiCountEqual": {
+			input:    `{"kanjiCount":{"rune":"太","count":{"equal":1}}}`,
+			expected: KanjiCount('太', ByteEqual(1)),
+		},
+		"KanjiCountGreaterThan": {
+			input:    `{"kanjiCount":{"rune":"太","count":{"greaterThan":1}}}`,
+			expected: KanjiCount('太', ByteGreaterThan(1)),
+		},
+		"KanjiCountLessThan": {
+			input:    `{"kanjiCount":{"rune":"太","count":{"lessThan":1}}}`,
+			expected: KanjiCount('太', ByteLessThan(1)),
+		},
+		"KanjiEqual": {
+			input:    `{"kanji":{"equal": "太郎"}}`,
+			expected: KanjiMatch(MatchExactly([]rune("太郎"))),
+		},
+		"KanjiStartWith": {
+			input:    `{"kanji":{"startWith": "太"}}`,
+			expected: KanjiMatch(MatchStartsWith([]rune("太"))),
+		},
+		"KanjiEndWith": {
+			input:    `{"kanji":{"endWith": "郎"}}`,
+			expected: KanjiMatch(MatchEndsWith([]rune("郎"))),
+		},
+		"KanjiContain": {
+			input:    `{"kanji":{"contain": "郎"}}`,
+			expected: KanjiMatch(MatchContains([]rune("郎"))),
 		},
 		"Length": {
 			input:    `{"length":{"equal":1}}`,
@@ -127,7 +171,7 @@ func TestParse(t *testing.T) {
 					}
 
 					target := Target{
-						GivenName:  generated.GivenName,
+						Kanji:      generated.GivenName,
 						Yomi:       generated.Yomi,
 						YomiString: generated.YomiString,
 						Strokes:    eval.SumStrokes(generated.GivenName, strokesMap),

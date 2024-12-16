@@ -18,6 +18,12 @@ func YomiCount(r1 rune, byteFunc ByteFunc) Func {
 	}
 }
 
+func YomiMatch(matchFunc MatchFunc) Func {
+	return func(d Target) bool {
+		return matchFunc(d.Yomi)
+	}
+}
+
 //go:embed data/common.json
 var commonYomisBytes []byte
 
