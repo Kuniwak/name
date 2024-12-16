@@ -41,16 +41,20 @@ func Main(familyName []rune, genFunc gen.GenerateFunc, genOpts gen.Options, filt
 	candCh := make(chan gen.Generated)
 	resCh := make(chan filter.Target)
 
+	var wg sync.WaitGroup
 	go genFunc(familyName, genOpts, candCh)
 
-	go printFunc(resCh)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		printFunc(resCh)
+	}()
 
 	parallelism := runtime.NumCPU() - 2
 	if parallelism < 1 {
 		parallelism = 1
 	}
 
-	var wg sync.WaitGroup
 	wg.Add(parallelism)
 	for i := 0; i < parallelism; i++ {
 		go func() {
