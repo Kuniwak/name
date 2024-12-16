@@ -32,4 +32,6 @@ func Search(
 			out <- target
 		}
 	}
+
+	close(out)
 }
