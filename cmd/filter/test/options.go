@@ -1,4 +1,4 @@
-package try
+package test
 
 import (
 	"errors"
@@ -19,11 +19,11 @@ type Options struct {
 }
 
 func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap map[rune]byte) (Options, error) {
-	flags := flag.NewFlagSet("try", flag.ContinueOnError)
+	flags := flag.NewFlagSet("test", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 
 	flags.Usage = func() {
-		_, _ = stderr.Write([]byte("Usage: name filter try <familyName> <givenName> <yomi>\n"))
+		_, _ = stderr.Write([]byte("Usage: name filter test <familyName> <givenName> <yomi>\n"))
 		_, _ = fmt.Fprintf(stderr, `
 STDIN
 	JSON filter:
@@ -50,11 +50,11 @@ STDIN
 		rune: string only containing one rune
 
 EXAMPLES
-	$ name filter try 田中 太郎 たなかたろう < filter.json
+	$ name filter test 田中 太郎 たなかたろう < filter.json
 	$ echo $?
 	0
 
-	$ name filter try 田中 太郎 たなかたろう < filter.json
+	$ name filter test 田中 太郎 たなかたろう < filter.json
 	$ echo $?
 	1
 )

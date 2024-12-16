@@ -36,7 +36,7 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap m
 		flags.PrintDefaults()
 		_, _ = fmt.Fprintf(o, `
 STDIN
-	See $ name filter try -h
+	See $ name filter test -h
 `)
 
 		_, _ = fmt.Fprintf(o, `

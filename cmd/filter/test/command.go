@@ -1,4 +1,4 @@
-package try
+package test
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 var SubCommand = cli.SubCommand{
-	Help: "try a filter",
+	Help: "test a filter",
 	Command: func(args []string, procInout cli.ProcInout) byte {
 		strokesMap := kanji.LoadStrokes()
 
