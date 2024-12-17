@@ -2,6 +2,7 @@ package eval
 
 import (
 	"fmt"
+	"github.com/Kuniwak/name/strokes"
 )
 
 type Rank byte
@@ -62,28 +63,53 @@ func (r Result) String() string {
 	return fmt.Sprintf("Result{Tenkaku: %s, Jinkaku: %s, Chikaku: %s, Gaikaku: %s, Sokaku: %s}", r.Tenkaku.String(), r.Jinkaku.String(), r.Chikaku.String(), r.Gaikaku.String(), r.Sokaku.String())
 }
 
-func Evaluate(familyName, givenName []rune, strokeMap map[rune]byte) (Result, error) {
-	tenkaku, err := StrokesToRank(Tenkaku(familyName, strokeMap))
+func Evaluate(familyName, givenName []rune, strokesFunc strokes.Func) (Result, error) {
+	tenkakuStrokes, err := Tenkaku(familyName, strokesFunc)
 	if err != nil {
 		return Result{}, err
 	}
 
-	jinkaku, err := StrokesToRank(Jinkaku(familyName, givenName, strokeMap))
+	tenkaku, err := StrokesToRank(tenkakuStrokes)
 	if err != nil {
 		return Result{}, err
 	}
 
-	chikaku, err := StrokesToRank(Chikaku(givenName, strokeMap))
+	jinkakuStrokes, err := Jinkaku(familyName, givenName, strokesFunc)
 	if err != nil {
 		return Result{}, err
 	}
 
-	gaikaku, err := StrokesToRank(Gaikaku(familyName, givenName, strokeMap))
+	jinkaku, err := StrokesToRank(jinkakuStrokes)
 	if err != nil {
 		return Result{}, err
 	}
 
-	sokaku, err := StrokesToRank(Sokaku(familyName, givenName, strokeMap))
+	chikakuStrokes, err := Chikaku(givenName, strokesFunc)
+	if err != nil {
+		return Result{}, err
+	}
+
+	chikaku, err := StrokesToRank(chikakuStrokes)
+	if err != nil {
+		return Result{}, err
+	}
+
+	gaikakuStrokes, err := Gaikaku(familyName, givenName, strokesFunc)
+	if err != nil {
+		return Result{}, err
+	}
+
+	gaikaku, err := StrokesToRank(gaikakuStrokes)
+	if err != nil {
+		return Result{}, err
+	}
+
+	sokakuStrokes, err := Sokaku(familyName, givenName, strokesFunc)
+	if err != nil {
+		return Result{}, err
+	}
+
+	sokaku, err := StrokesToRank(sokakuStrokes)
 	if err != nil {
 		return Result{}, err
 	}
@@ -97,54 +123,52 @@ func Evaluate(familyName, givenName []rune, strokeMap map[rune]byte) (Result, er
 	}, nil
 }
 
-func Strokes(r rune, strokeMap map[rune]byte) byte {
-	n, ok := strokeMap[r]
-	if !ok {
-		panic(fmt.Sprintf("unknown kanji: %c", r))
+func Tenkaku(familyName []rune, strokesFunc strokes.Func) (byte, error) {
+	return strokes.Sum(familyName, strokesFunc)
+}
+
+func Jinkaku(familyName, givenName []rune, strokesFunc strokes.Func) (byte, error) {
+	return strokes.Add(familyName[len(familyName)-1], givenName[0], strokesFunc)
+}
+
+func Chikaku(givenName []rune, strokesFunc strokes.Func) (byte, error) {
+	return strokes.Sum(givenName, strokesFunc)
+}
+
+func Gaikaku(familyName, givenName []rune, strokesFunc strokes.Func) (byte, error) {
+	c1, err := strokesFunc(familyName[0])
+	if err != nil {
+		return 0, err
 	}
-	return n
-}
 
-func SumStrokes(rs []rune, strokeMap map[rune]byte) byte {
-	var sum byte = 0
-	for _, r := range rs {
-		sum += Strokes(r, strokeMap)
+	c2, err := strokesFunc(givenName[len(givenName)-1])
+	if err != nil {
+		return 0, err
 	}
-	return sum
-}
 
-func Tenkaku(familyName []rune, strokeMap map[rune]byte) byte {
-	return SumStrokes(familyName, strokeMap)
-}
-
-func Jinkaku(familyName, givenName []rune, strokeMap map[rune]byte) byte {
-	c1 := familyName[len(familyName)-1]
-	c2 := givenName[0]
-	return Strokes(c1, strokeMap) + Strokes(c2, strokeMap)
-}
-
-func Chikaku(givenName []rune, strokeMap map[rune]byte) byte {
-	return SumStrokes(givenName, strokeMap)
-}
-
-func Gaikaku(familyName, givenName []rune, strokeMap map[rune]byte) byte {
-	c1 := familyName[0]
-	c2 := givenName[len(givenName)-1]
 	var n1 byte
 	if len(familyName) == 1 {
-		n1 = Strokes(c1, strokeMap) + 1
+		n1 = c1 + 1
 	} else {
-		n1 = Strokes(c1, strokeMap)
+		n1 = c1
 	}
 	var n2 byte
 	if len(givenName) == 1 {
-		n2 = Strokes(c2, strokeMap) + 1
+		n2 = c2 + 1
 	} else {
-		n2 = Strokes(c2, strokeMap)
+		n2 = c2
 	}
-	return n1 + n2
+	return n1 + n2, nil
 }
 
-func Sokaku(familyName, givenName []rune, strokeMap map[rune]byte) byte {
-	return SumStrokes(familyName, strokeMap) + SumStrokes(givenName, strokeMap)
+func Sokaku(familyName, givenName []rune, strokesFunc strokes.Func) (byte, error) {
+	c1, err := strokes.Sum(familyName, strokesFunc)
+	if err != nil {
+		return 0, err
+	}
+	c2, err := strokes.Sum(givenName, strokesFunc)
+	if err != nil {
+		return 0, err
+	}
+	return c1 + c2, nil
 }

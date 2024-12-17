@@ -96,11 +96,11 @@ STDIN
         Filter notated in JSON. See "name filter validate --help" for details.
 
 EXAMPLES
-        $ name filter test 田中 太郎 たなかたろう < filter.json
+        $ name filter test 田中 太郎 タロウ < filter.json
         $ echo $?
         0
 
-        $ name filter test 田中 太郎 たなかたろう < filter.json
+        $ name filter test 田中 太郎 タロウ < filter.json
         $ echo $?
         1
         

@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"github.com/Kuniwak/name/filter"
 	"github.com/Kuniwak/name/gen"
+	"github.com/Kuniwak/name/mecabfactory"
+	"github.com/Kuniwak/name/strokes"
+	"github.com/Kuniwak/name/yomi"
 	"io"
 	"os"
 )
@@ -19,7 +22,7 @@ type Options struct {
 	GeneratorFunc gen.GenerateFunc
 }
 
-func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap map[rune]byte, yomiMap map[rune][][]rune) (*Options, error) {
+func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, cm map[rune]struct{}, strokesFunc strokes.Func, yomiFunc yomi.Func) (*Options, error) {
 	flags := flag.NewFlagSet("search", flag.ContinueOnError)
 
 	flags.SetOutput(stderr)
@@ -61,37 +64,45 @@ EXAMPLES
 		return nil, errors.New("family name is required")
 	}
 
-	for _, r := range familyName {
-		if _, ok := yomiMap[r]; !ok {
-			return nil, fmt.Errorf("unknown rune: %c", r)
-		}
-	}
-
-	yomiCount := *unsafeYomiCount
-	if yomiCount < 1 {
-		return nil, errors.New("yomi-count must be greater than or equal to 1")
-	}
-
-	stat, err := os.Stat(*unsafeDirDict)
+	_, err := strokes.Sum(familyName, strokesFunc)
 	if err != nil {
-		return nil, fmt.Errorf("failed to stat %q: %w", *unsafeDirDict, err)
+		return nil, fmt.Errorf("invalid family name: %w", err)
 	}
-
-	if !stat.IsDir() {
-		return nil, fmt.Errorf("%q is not a directory", *unsafeDirDict)
-	}
-	dirDict := *unsafeDirDict
 
 	var genFunc gen.GenerateFunc
 	switch *space {
 	case "full":
-		var err error
-		genFunc, err = gen.NewFullSpaceGenerator(strokesMap, dirDict, yomiCount)
+		yomiCount := *unsafeYomiCount
+		if yomiCount < 1 {
+			return nil, errors.New("yomi-count must be greater than or equal to 1")
+		}
+
+		stat, err := os.Stat(*unsafeDirDict)
+		if err != nil {
+			return nil, fmt.Errorf("failed to stat %q: %w", *unsafeDirDict, err)
+		}
+
+		if !stat.IsDir() {
+			return nil, fmt.Errorf("%q is not a directory", *unsafeDirDict)
+		}
+		dirDict := *unsafeDirDict
+
+		m, err := mecabfactory.WithDictionaryDirectory(dirDict)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create MeCab: %w", err)
+		}
+
+		yomiFuncByMeCab, err := yomi.ByMeCab(m, yomiCount)
+		if err != nil {
+			return nil, err
+		}
+
+		genFunc, err = gen.NewFullSpaceGenerator(cm, strokesFunc, yomi.Fallback(yomiFuncByMeCab, yomiFunc))
 		if err != nil {
 			return nil, err
 		}
 	case "common":
-		genFunc = gen.NewCommonSpaceGenerator(strokesMap)
+		genFunc = gen.NewCommonSpaceGenerator(cm)
 	default:
 		return nil, fmt.Errorf("unknown space: %q", *space)
 	}

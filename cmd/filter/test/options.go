@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Kuniwak/name/filter"
+	"github.com/Kuniwak/name/kanaconv"
 	"github.com/Kuniwak/name/kanji"
 	"golang.org/x/text/unicode/norm"
 	"io"
@@ -18,7 +19,7 @@ type Options struct {
 	Filter     filter.Func
 }
 
-func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, strokesMap map[rune]byte) (Options, error) {
+func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, cm map[rune]struct{}) (Options, error) {
 	flags := flag.NewFlagSet("test", flag.ContinueOnError)
 	flags.SetOutput(stderr)
 
@@ -29,11 +30,11 @@ STDIN
 	Filter notated in JSON. See "name filter validate --help" for details.
 
 EXAMPLES
-	$ name filter test 田中 太郎 たなかたろう < filter.json
+	$ name filter test 田中 太郎 たろう < filter.json
 	$ echo $?
 	0
 
-	$ name filter test 田中 太郎 たなかたろう < filter.json
+	$ name filter test 田中 太郎 たろう < filter.json
 	$ echo $?
 	1
 `)
@@ -66,7 +67,7 @@ EXAMPLES
 		return Options{}, errors.New("family name is required")
 	}
 
-	if !kanji.IsValid(familyName, strokesMap) {
+	if !kanji.IsValid(familyName, cm) {
 		return Options{}, errors.New("invalid kanji included")
 	}
 
@@ -75,19 +76,19 @@ EXAMPLES
 		return Options{}, errors.New("given name is required")
 	}
 
-	if !kanji.IsValid(givenName, strokesMap) {
+	if !kanji.IsValid(givenName, cm) {
 		return Options{}, errors.New("invalid kanji included")
 	}
 
-	yomi := []rune(norm.NFC.String(flags.Arg(2)))
-	if len(yomi) == 0 {
-		return Options{}, errors.New("yomi-gana is required")
+	y := kanaconv.Htok([]rune(norm.NFC.String(flags.Arg(2))))
+	if len(y) == 0 {
+		return Options{}, errors.New("yomigana is required")
 	}
 
 	return Options{
 		FamilyName: familyName,
 		GivenName:  givenName,
-		Yomi:       yomi,
+		Yomi:       y,
 		Filter:     f,
 	}, nil
 }

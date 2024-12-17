@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/Kuniwak/name/kanaconv"
 	"github.com/Kuniwak/name/kanji"
 	"golang.org/x/text/unicode/norm"
 	"io"
@@ -16,7 +17,7 @@ type Options struct {
 	Yomi       []rune
 }
 
-func ParseOptions(args []string, stderr io.Writer, strokesMap map[rune]byte) (Options, error) {
+func ParseOptions(args []string, stderr io.Writer, cm map[rune]struct{}) (Options, error) {
 	flags := flag.NewFlagSet("info", flag.ContinueOnError)
 
 	flags.SetOutput(stderr)
@@ -48,7 +49,7 @@ EXAMPLES
 		return Options{}, fmt.Errorf("family name is required")
 	}
 
-	if !kanji.IsValid(familyName, strokesMap) {
+	if !kanji.IsValid(familyName, cm) {
 		return Options{}, fmt.Errorf("invalid kanji included: %q", familyName)
 	}
 
@@ -57,18 +58,18 @@ EXAMPLES
 		return Options{}, fmt.Errorf("given name is required")
 	}
 
-	if !kanji.IsValid(givenName, strokesMap) {
+	if !kanji.IsValid(givenName, cm) {
 		return Options{}, fmt.Errorf("invalid kanji included: %q", givenName)
 	}
 
-	yomi := []rune(norm.NFC.String(args[2]))
-	if len(yomi) == 0 {
+	y := kanaconv.Htok([]rune((norm.NFC.String(args[2]))))
+	if len(y) == 0 {
 		return Options{}, fmt.Errorf("yomi-gana is required")
 	}
 
 	return Options{
 		FamilyName: familyName,
 		GivenName:  givenName,
-		Yomi:       yomi,
+		Yomi:       y,
 	}, nil
 }

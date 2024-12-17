@@ -2,60 +2,67 @@ package gen
 
 import (
 	"github.com/Kuniwak/name/config"
-	"github.com/Kuniwak/name/eval"
-	"github.com/Kuniwak/name/namelti"
-	"github.com/shogo82148/go-mecab"
+	"github.com/Kuniwak/name/strokes"
+	"github.com/Kuniwak/name/yomi"
 )
 
-func NewFullSpaceGenerator(strokes map[rune]byte, dictDir string, nBest int) (GenerateFunc, error) {
-	tagger, err := mecab.New(map[string]string{"dicdir": dictDir})
-	if err != nil {
-		return nil, err
-	}
+func NewFullSpaceGenerator(cm map[rune]struct{}, strokesFunc strokes.Func, yomiFunc yomi.Func) (GenerateFunc, error) {
+	return func(familyName []rune, opts Options, ch chan<- Generated) error {
+		defer close(ch)
+		s, err := strokes.Sum(familyName, strokesFunc)
+		if err != nil {
+			return err
+		}
 
-	return func(familyName []rune, opts Options, ch chan<- Generated) {
-		m := config.MaxStrokes - eval.SumStrokes(familyName, strokes)
-		fullSpaceGenerator([]rune{}, 0, m, opts, strokes, tagger, nBest, ch)
-		close(ch)
+		m := config.MaxStrokes - s
+		if err := fullSpaceGenerator([]rune{}, 0, m, opts, cm, strokesFunc, yomiFunc, ch); err != nil {
+			return err
+		}
+		return nil
 	}, nil
 }
 
-func fullSpaceGenerator(current []rune, currentStrokes, maxStrokes byte, opts Options, strokesMap map[rune]byte, tagger mecab.MeCab, nBest int, ch chan<- Generated) {
+func fullSpaceGenerator(current []rune, currentStrokes, maxStrokes byte, opts Options, cm map[rune]struct{}, strokesFunc strokes.Func, yomiFunc yomi.Func, ch chan<- Generated) error {
 	if len(current) >= opts.MaxLength {
-		return
+		return nil
 	}
 
-	for r, stroke := range strokesMap {
-		if currentStrokes+stroke > maxStrokes {
+	for r := range cm {
+		s, err := strokesFunc(r)
+		if err != nil {
+			return err
+		}
+
+		if currentStrokes+s > maxStrokes {
 			continue
 		}
 
 		newCurrent := append(append([]rune{}, current...), r)
 		if len(newCurrent) >= opts.MinLength {
-			if err := emit(ch, newCurrent, tagger, nBest); err != nil {
-
+			if err := emit(ch, newCurrent, yomiFunc); err != nil {
+				return err
 			}
 		}
 
-		fullSpaceGenerator(newCurrent, currentStrokes+stroke, maxStrokes, opts, strokesMap, tagger, nBest, ch)
+		if err := fullSpaceGenerator(newCurrent, currentStrokes+s, maxStrokes, opts, cm, strokesFunc, yomiFunc, ch); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }
 
-func emit(ch chan<- Generated, givenName []rune, tagger mecab.MeCab, nBest int) error {
-	t, err := namelti.NewTranscripter(tagger)
-	if err != nil {
-		return err
-	}
-	yomis, err := t.Transcript(string(givenName), nBest)
+func emit(ch chan<- Generated, givenName []rune, yomiFunc yomi.Func) error {
+	yomis, err := yomiFunc(givenName)
 	if err != nil {
 		return err
 	}
 
-	for _, yomi := range yomis {
+	for _, y := range yomis {
 		ch <- Generated{
 			GivenName:  givenName,
-			Yomi:       []rune(yomi),
-			YomiString: yomi,
+			Yomi:       y.Runes,
+			YomiString: y.String,
 		}
 	}
 	return nil

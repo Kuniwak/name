@@ -41,7 +41,7 @@ func (s Sex) String() string {
 
 type Func func(givenName string) Sex
 
-func New(maleNames, femaleNames map[string]struct{}) Func {
+func ByNameLists(maleNames, femaleNames map[string]struct{}) Func {
 	return func(givenName string) Sex {
 		_, mOk := maleNames[givenName]
 		_, fOk := femaleNames[givenName]

@@ -4,7 +4,12 @@ import (
 	"github.com/Kuniwak/name/kanji/jinmei"
 	"github.com/Kuniwak/name/kanji/joyo"
 	"github.com/Kuniwak/name/kanji/kana"
+	"github.com/Kuniwak/name/kanji/loader"
 )
+
+func Load(strokesMap, yomiMap map[rune]byte) map[rune]struct{} {
+	return loader.Intersection2(loader.Load(strokesMap), loader.Load(yomiMap))
+}
 
 func LoadStrokes() map[rune]byte {
 	joyos := joyo.LoadStrokes()

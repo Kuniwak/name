@@ -6,7 +6,8 @@ import (
 	"github.com/Kuniwak/name/gen"
 	"github.com/Kuniwak/name/mora"
 	"github.com/Kuniwak/name/sex"
-	"sync"
+	"github.com/Kuniwak/name/strokes"
+	"golang.org/x/sync/errgroup"
 )
 
 func Parallel(
@@ -14,20 +15,18 @@ func Parallel(
 	in <-chan gen.Generated,
 	out chan<- filter.Target,
 	filterFunc filter.Func,
-	strokesMap map[rune]byte,
+	strokesFunc strokes.Func,
 	sexFunc sex.Func,
 	parallelism int,
-) {
-	var wg sync.WaitGroup
-	wg.Add(parallelism)
+) error {
+	defer close(out)
+	var eg errgroup.Group
 	for i := 0; i < parallelism; i++ {
-		go func() {
-			defer wg.Done()
-			Search(familyName, in, out, filterFunc, strokesMap, sexFunc)
-		}()
+		eg.Go(func() error {
+			return Search(familyName, in, out, filterFunc, strokesFunc, sexFunc)
+		})
 	}
-	wg.Wait()
-	close(out)
+	return eg.Wait()
 }
 
 func Search(
@@ -35,20 +34,25 @@ func Search(
 	in <-chan gen.Generated,
 	out chan<- filter.Target,
 	filterFunc filter.Func,
-	strokesMap map[rune]byte,
+	strokesFunc strokes.Func,
 	sexFunc sex.Func,
-) {
+) error {
 	for generated := range in {
-		res, err := eval.Evaluate(familyName, generated.GivenName, strokesMap)
+		res, err := eval.Evaluate(familyName, generated.GivenName, strokesFunc)
 		if err != nil {
-			continue
+			return err
+		}
+
+		s, err := strokes.Sum(generated.GivenName, strokesFunc)
+		if err != nil {
+			return err
 		}
 
 		target := filter.Target{
 			Kanji:      generated.GivenName,
 			Yomi:       generated.Yomi,
 			YomiString: generated.YomiString,
-			Strokes:    eval.SumStrokes(generated.GivenName, strokesMap),
+			Strokes:    s,
 			Mora:       mora.Count(generated.Yomi),
 			Sex:        sexFunc(generated.YomiString),
 			EvalResult: res,
@@ -57,4 +61,5 @@ func Search(
 			out <- target
 		}
 	}
+	return nil
 }

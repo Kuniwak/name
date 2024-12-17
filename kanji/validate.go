@@ -1,17 +1,10 @@
 package kanji
 
-import (
-	"github.com/Kuniwak/name/config"
-)
-
-func IsValid(givenName []rune, strokesMap map[rune]byte) bool {
-	var acc byte = 0
+func IsValid(givenName []rune, cm map[rune]struct{}) bool {
 	for _, r := range givenName {
-		n, ok := strokesMap[r]
-		if !ok {
+		if _, ok := cm[r]; !ok {
 			return false
 		}
-		acc += n
 	}
-	return acc <= config.MaxStrokes
+	return true
 }

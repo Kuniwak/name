@@ -5,7 +5,7 @@ type Options struct {
 	MaxLength int
 }
 
-type GenerateFunc func(familyName []rune, opts Options, ch chan<- Generated)
+type GenerateFunc func(familyName []rune, opts Options, ch chan<- Generated) error
 
 type Generated struct {
 	GivenName  []rune

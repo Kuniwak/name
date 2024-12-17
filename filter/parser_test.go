@@ -4,11 +4,14 @@ import (
 	"github.com/Kuniwak/name/eval"
 	"github.com/Kuniwak/name/gen"
 	"github.com/Kuniwak/name/kanji"
+	"github.com/Kuniwak/name/sex"
+	"github.com/Kuniwak/name/strokes"
 	"testing"
 )
 
 func TestParse(t *testing.T) {
-	strokesMap := kanji.LoadStrokes()
+	strokesFunc := strokes.ByMap(kanji.LoadStrokes())
+	sexFunc := sex.ByNameLists(sex.LoadMaleNames(), sex.LoadFemaleNames())
 
 	tests := map[string]struct {
 		input    string
@@ -122,6 +125,18 @@ func TestParse(t *testing.T) {
 			input:    `{"length":{"equal":1}}`,
 			expected: Length(ByteEqual(1)),
 		},
+		"SexAsexual": {
+			input:    `{"sex":"asexual"}`,
+			expected: Sex(Asexual),
+		},
+		"SexMale": {
+			input:    `{"sex":"male"}`,
+			expected: Sex(Male),
+		},
+		"SexFemale": {
+			input:    `{"sex":"female"}`,
+			expected: Sex(Female),
+		},
 	}
 
 	familyNames := []string{"山田", "一"}
@@ -164,7 +179,13 @@ func TestParse(t *testing.T) {
 
 			for _, familyName := range familyNames {
 				for _, generated := range generateds {
-					evalResult, err := eval.Evaluate([]rune(familyName), generated.GivenName, strokesMap)
+					evalResult, err := eval.Evaluate([]rune(familyName), generated.GivenName, strokesFunc)
+					if err != nil {
+						t.Error(err.Error())
+						return
+					}
+
+					s, err := strokes.Sum(generated.GivenName, strokesFunc)
 					if err != nil {
 						t.Error(err.Error())
 						return
@@ -174,7 +195,8 @@ func TestParse(t *testing.T) {
 						Kanji:      generated.GivenName,
 						Yomi:       generated.Yomi,
 						YomiString: generated.YomiString,
-						Strokes:    eval.SumStrokes(generated.GivenName, strokesMap),
+						Sex:        sexFunc(generated.YomiString),
+						Strokes:    s,
 						EvalResult: evalResult,
 					}
 					if actual(target) != c.expected(target) {

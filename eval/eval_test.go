@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Kuniwak/name/config"
 	"github.com/Kuniwak/name/kanji"
+	"github.com/Kuniwak/name/strokes"
 	"github.com/google/go-cmp/cmp"
 	"reflect"
 	"testing"
@@ -41,9 +42,9 @@ func TestEvaluate(t *testing.T) {
 
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
-			sm := kanji.LoadStrokes()
+			strokesFunc := strokes.ByMap(kanji.LoadStrokes())
 
-			actual, err := Evaluate([]rune(test.familyName), []rune(test.givenName), sm)
+			actual, err := Evaluate([]rune(test.familyName), []rune(test.givenName), strokesFunc)
 			if err != nil {
 				t.Errorf("want nil, got %v", err)
 				return
