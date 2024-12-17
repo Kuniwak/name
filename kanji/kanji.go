@@ -1,13 +1,14 @@
 package kanji
 
 import (
+	"fmt"
 	"github.com/Kuniwak/name/kanji/jinmei"
 	"github.com/Kuniwak/name/kanji/joyo"
 	"github.com/Kuniwak/name/kanji/kana"
 	"github.com/Kuniwak/name/kanji/loader"
 )
 
-func Load(strokesMap, yomiMap map[rune]byte) map[rune]struct{} {
+func Load(strokesMap map[rune]byte, yomiMap map[rune][][]rune) map[rune]struct{} {
 	return loader.Intersection2(loader.Load(strokesMap), loader.Load(yomiMap))
 }
 
@@ -21,9 +22,15 @@ func LoadStrokes() map[rune]byte {
 		strokes[k] = v
 	}
 	for k, v := range jins {
+		if _, ok := strokes[k]; ok {
+			panic(fmt.Sprintf("duplicate key between joyo and jinmei: %q", string(k)))
+		}
 		strokes[k] = v
 	}
 	for k, v := range kanas {
+		if _, ok := strokes[k]; ok {
+			panic(fmt.Sprintf("duplicate key among joyo and jinmei and kana: %q", string(k)))
+		}
 		strokes[k] = v
 	}
 	return strokes
@@ -39,9 +46,15 @@ func LoadYomi() map[rune][][]rune {
 		yomi[k] = v
 	}
 	for k, v := range jins {
+		if _, ok := yomi[k]; ok {
+			panic(fmt.Sprintf("duplicate key between joyo and jinmei: %q", string(k)))
+		}
 		yomi[k] = v
 	}
 	for k, v := range kanas {
+		if _, ok := yomi[k]; ok {
+			panic(fmt.Sprintf("duplicate key among joyo and jinmei and kana: %q", string(k)))
+		}
 		yomi[k] = v
 	}
 	return yomi

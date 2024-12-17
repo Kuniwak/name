@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Kuniwak/name/kanji/types"
-	"golang.org/x/text/unicode/norm"
 )
 
 func LoadStrokes(bs []byte) map[rune]byte {
@@ -15,7 +14,7 @@ func LoadStrokes(bs []byte) map[rune]byte {
 
 	m := make(map[rune]byte)
 	for _, s := range strokes {
-		r := []rune(norm.NFC.String(s.Kanji))[0]
+		r := []rune(s.Kanji)[0]
 		m[r] = s.Strokes
 	}
 	return m
