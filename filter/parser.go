@@ -167,7 +167,7 @@ func Build(seed *Data) (Func, error) {
 		if err != nil {
 			return nil, err
 		}
-		return KanjiCount([]rune(norm.NFC.String(seed.KanjiCount.Rune))[0], countFunc), nil
+		return KanjiCount([]rune(seed.KanjiCount.Rune)[0], countFunc), nil
 	}
 
 	if seed.KanjiMatch != nil {
@@ -224,19 +224,19 @@ func BuildByteFunc(data ByteFuncData) (ByteFunc, error) {
 
 func BuildMatchFunc(data MatchFuncData) (MatchFunc, error) {
 	if data.Equal != nil {
-		return MatchExactly([]rune(norm.NFC.String(*data.Equal))), nil
+		return MatchExactly([]rune(*data.Equal)), nil
 	}
 
 	if data.StartWith != nil {
-		return MatchStartsWith([]rune(norm.NFC.String(*data.StartWith))), nil
+		return MatchStartsWith([]rune(*data.StartWith)), nil
 	}
 
 	if data.EndWith != nil {
-		return MatchEndsWith([]rune(norm.NFC.String(*data.EndWith))), nil
+		return MatchEndsWith([]rune(*data.EndWith)), nil
 	}
 
 	if data.Contain != nil {
-		return MatchContains([]rune(norm.NFC.String(*data.Contain))), nil
+		return MatchContains([]rune(*data.Contain)), nil
 	}
 
 	return nil, fmt.Errorf("empty match data")

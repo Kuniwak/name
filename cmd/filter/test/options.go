@@ -62,7 +62,7 @@ EXAMPLES
 		return Options{}, err
 	}
 
-	familyName := []rune(norm.NFC.String(flags.Arg(0)))
+	familyName := []rune(flags.Arg(0))
 	if len(familyName) == 0 {
 		return Options{}, errors.New("family name is required")
 	}
@@ -71,7 +71,7 @@ EXAMPLES
 		return Options{}, errors.New("invalid kanji included")
 	}
 
-	givenName := []rune(norm.NFC.String(flags.Arg(1)))
+	givenName := []rune(flags.Arg(1))
 	if len(givenName) == 0 {
 		return Options{}, errors.New("given name is required")
 	}

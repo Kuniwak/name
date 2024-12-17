@@ -44,7 +44,7 @@ EXAMPLES
 		return Options{}, errors.New("given name is required")
 	}
 
-	familyName := []rune(norm.NFC.String(args[0]))
+	familyName := []rune(args[0])
 	if len(familyName) == 0 {
 		return Options{}, fmt.Errorf("family name is required")
 	}
@@ -53,7 +53,7 @@ EXAMPLES
 		return Options{}, fmt.Errorf("invalid kanji included: %q", familyName)
 	}
 
-	givenName := []rune(norm.NFC.String(args[1]))
+	givenName := []rune(args[1])
 	if len(givenName) == 0 {
 		return Options{}, fmt.Errorf("given name is required")
 	}
@@ -62,7 +62,7 @@ EXAMPLES
 		return Options{}, fmt.Errorf("invalid kanji included: %q", givenName)
 	}
 
-	y := kanaconv.Htok([]rune((norm.NFC.String(args[2]))))
+	y := kanaconv.Htok([]rune(norm.NFC.String(args[2])))
 	if len(y) == 0 {
 		return Options{}, fmt.Errorf("yomi-gana is required")
 	}

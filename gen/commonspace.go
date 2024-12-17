@@ -22,7 +22,7 @@ func NewCommonSpaceGenerator(cm map[rune]struct{}) GenerateFunc {
 		defer close(ch)
 		for yomi, names := range mei {
 			for _, name := range names {
-				givenNameString := norm.NFC.String(name)
+				givenNameString := name
 				givenName := []rune(givenNameString)
 
 				if !kanji.IsValid(givenName, cm) || len(givenName) < opts.MinLength || len(givenName) > opts.MaxLength {

@@ -98,7 +98,7 @@ func ParseTSV(r io.Reader, ch chan<- filter.Target) error {
 		}
 
 		ch <- filter.Target{
-			Kanji:      []rune(norm.NFC.String(fields[2])),
+			Kanji:      []rune(fields[2]),
 			Yomi:       yomiRunes,
 			YomiString: yomi,
 			Strokes:    strokes,
