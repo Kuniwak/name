@@ -24,7 +24,7 @@ Usage: name [options] <familyName>
 
 OPTIONS
   -dir-dict string
-        Directory of MeCab dictionary (full space only) (default "/opt/homebrew/opt/mecab-ipadic/lib/mecab/dic/ipadic")
+        Directory of MeCab dictionary (full space only) (default "")
   -max-length int
         Maximum length of a given name (default 3)
   -min-length int

@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euxo pipefail
+
+BASE_DIR="$(cd "$(dirname "$0")/../.."; pwd)"
+
+set-env() {
+  local env="$1"
+  local value="$2"
+  export "$env=$value"
+  echo "$env=$value" >> "$GITHUB_ENV"
+}
+
+add-path() {
+  local path="$1"
+  export "PATH=$path:$PATH"
+  echo "$path" >> "$GITHUB_PATH"
+}
+
+source "$BASE_DIR/assets/lib/install-mecab-mingw.bash"
+install-mecab "$(cygpath -u "$GITHUB_WORKSPACE\\mecab")"

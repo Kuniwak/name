@@ -1,6 +1,6 @@
 package sliceutil
 
-func Cartesian[T any](input [][]T) [][]T {
+func Cartesian[T any](input ...[]T) [][]T {
 	if len(input) == 0 {
 		return [][]T{}
 	}

@@ -1,0 +1,26 @@
+#!/bin/bash
+set -euxo pipefail
+
+BASE_DIR="$(cd "$(dirname "$0")/../.."; pwd)"
+INSTALL_DIR="${INSTALL_DIR:-C:\\MeCab}"
+TMP_DIR="$(mktemp -d)"
+
+set-env() {
+  local env="$1"
+  local value="$2"
+  export "$env=$value"
+  echo "$env=$value" >> "$TMP_DIR/env"
+}
+
+add-path() {
+  local path="$1"
+  export "PATH=$path:$PATH"
+}
+
+source "$BASE_DIR/assets/lib/install-mecab-mingw.bash"
+install-mecab "$(cygpath -u "$INSTALL_DIR")"
+
+set +x
+echo ""
+echo "Please set the environment variables:"
+sed -e 's/^/	/' "$TMP_DIR/env"

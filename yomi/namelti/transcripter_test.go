@@ -1,13 +1,17 @@
 package namelti
 
 import (
-	"github.com/shogo82148/go-mecab"
+	"github.com/Kuniwak/name/mecabfactory"
+	"github.com/Kuniwak/name/mecabfactory/dicdir"
 	"reflect"
 	"testing"
 )
 
 func TestTranscripter_Transcript(t *testing.T) {
-	m, err := mecab.New(map[string]string{})
+	m, err := mecabfactory.WithDictionary(dicdir.FirstAvailable(dicdir.ByDictNamesWithSearchPaths(
+		dicdir.SearchPathByOS(),
+		dicdir.IPADicUTF8(),
+	)))
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 		return

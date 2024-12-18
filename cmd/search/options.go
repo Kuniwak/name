@@ -80,7 +80,10 @@ EXAMPLES
 
 		var dicDirFunc dicdir.Func
 		if len(*unsafeDicDir) == 0 {
-			dicDirFunc = dicdir.Fallback(dicdir.Neologd(dicdir.ByMecabConfig()), dicdir.Ipa(dicdir.ByMecabConfig()))
+			dicDirFunc = dicdir.FirstAvailable(dicdir.ByDictNamesWithSearchPaths(
+				dicdir.SearchPathByOS(),
+				dicdir.NeologdOrIPADicUTF8(),
+			))
 		} else {
 			stat, err := os.Stat(*unsafeDicDir)
 			if err != nil {
@@ -91,7 +94,7 @@ EXAMPLES
 				return nil, fmt.Errorf("%q is not a directory", *unsafeDicDir)
 			}
 			dicDir := *unsafeDicDir
-			dicDirFunc = dicdir.ByConstant(dicDir, nil)
+			dicDirFunc = dicdir.FirstAvailable(dicdir.ByDictPath(dicDir))
 		}
 
 		m, err := mecabfactory.WithDictionary(dicDirFunc)
