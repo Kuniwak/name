@@ -8,21 +8,55 @@ on:
       - '**/*.md'
 
 jobs:
-  test:
-    runs-on: ${{ matrix.os }}
+  ubuntu-test:
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
 
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
           go-version: 1.23.4
-      - run: go test -v ./...
+      - run: |
+        ./assets/mecab-0.996-64.exe
+      - run: |
+        export CGO_LDFLAGS="`mecab-config --libs`"
+        export CGO_CFLAGS="-I`mecab-config --inc-dir`"
+        go test -v ./...
+
+  macos-test:
+    runs-on: macos-latest 
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
+        with:
+          go-version: 1.23.4
+      - run: brew install mecab mecab-ipadic
+      - run: |
+        export CGO_LDFLAGS="`mecab-config --libs`"
+        export CGO_CFLAGS="-I`mecab-config --inc-dir`"
+        go test -v ./...
+
+  windows-test:
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
+        with:
+          go-version: 1.23.4
+      - run: sudo apt install mecab libmecab-dev mecab-ipadic-utf8
+      - run: |
+        export CGO_LDFLAGS="`mecab-config --libs`"
+        export CGO_CFLAGS="-I`mecab-config --inc-dir`"
+        go test -v ./...
+
