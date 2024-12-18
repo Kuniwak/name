@@ -1,0 +1,56 @@
+#!/bin/bash
+
+prefix="$(dirname "$(dirname "$(which mecab)")")"
+
+usage()
+{
+    cat <<EOF
+Usage: mecab-config [OPTIONS]
+
+Options:
+  [--dicdir]
+  [--libexecdir]
+  [--sysconfdir]
+  [--help]
+  [--version]
+EOF
+
+    exit $1
+}
+
+if test $# -eq 0; then
+    usage 1
+fi
+
+while test $# -gt 0; do
+    case "$1" in
+    --version)
+        echo 0.996-custom
+        exit 0
+        ;;
+
+    --help)
+        usage 0
+        ;;
+
+    --dicdir)
+        echo ${prefix}/dic
+        ;;
+
+    --libexecdir)
+        echo ${prefix}/bin
+        ;;
+        
+    --sysconfdir)
+        echo ${prefix}/etc
+        ;;
+
+    *)
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+done
+
+exit 0

@@ -53,9 +53,10 @@ jobs:
       - uses: actions/setup-go@3041bf56c941b39c61721a86cd11f3bb1338122a # v5.2.0
         with:
           go-version: 1.23.4
-      - shell: pwsh
-        run: |
-          assets\mecab-0.996-64.exe
       - run: |
+          assets/mecab-0.996-64.exe
+          mv assets/mecab-config "C:/Program Files/MeCab/bin"
+      - run: |
+          export PATH="C:/Program Files/MeCab/bin:$PATH"
           CGO_LDFLAGS="$(mecab-config --libs)" CGO_CFLAGS="-I$(mecab-config --inc-dir)" go test -v ./...
 
