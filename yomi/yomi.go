@@ -74,15 +74,12 @@ func ByMeCab(m mecab.MeCab, nBest int) (Func, error) {
 			return nil, fmt.Errorf("failed to transcript %q: %w", string(rs), err)
 		}
 
-		results := make([]Result, len(yomis))
-		for i, yomi := range yomis {
-			if yomi == "" {
-				continue
-			}
-			results[i] = Result{
+		results := make([]Result, 0, len(yomis))
+		for _, yomi := range yomis {
+			results = append(results, Result{
 				Runes:  []rune(yomi),
 				String: yomi,
-			}
+			})
 		}
 		return results, nil
 	}, nil

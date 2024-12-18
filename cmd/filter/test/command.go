@@ -17,7 +17,7 @@ var SubCommand = cli.SubCommand{
 	Command: func(args []string, procInout cli.ProcInout) byte {
 		strokesMap := kanji.LoadStrokes()
 		yomiMap := kanji.LoadYomi()
-		cm := loader.Intersection2(loader.Load(strokesMap), loader.Load(yomiMap))
+		cm := loader.Intersection(loader.Load(strokesMap), loader.Load(yomiMap))
 
 		opts, err := ParseOptions(args, procInout.Stdin, procInout.Stderr, cm)
 		if err != nil {

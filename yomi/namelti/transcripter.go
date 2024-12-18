@@ -26,7 +26,7 @@ func (t *Transcripter) Transcript(s string, nbest int) ([]string, error) {
 		return nil, err
 	}
 
-	res := make([]string, 0)
+	res := make([]string, 0, nbest)
 	i := nbest
 	w := &strings.Builder{}
 	for t.lattice.Next() && i > 0 {
@@ -37,7 +37,9 @@ func (t *Transcripter) Transcript(s string, nbest int) ([]string, error) {
 				w.WriteString(yomi)
 			}
 		}
-		res = append(res, w.String())
+		if w.Len() > 0 {
+			res = append(res, w.String())
+		}
 		w.Reset()
 		i--
 	}

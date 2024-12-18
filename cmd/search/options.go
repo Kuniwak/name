@@ -7,6 +7,7 @@ import (
 	"github.com/Kuniwak/name/filter"
 	"github.com/Kuniwak/name/gen"
 	"github.com/Kuniwak/name/mecabfactory"
+	"github.com/Kuniwak/name/mecabfactory/dicdir"
 	"github.com/Kuniwak/name/strokes"
 	"github.com/Kuniwak/name/yomi"
 	"io"
@@ -30,7 +31,7 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, cm map[rune]
 	minLength := flags.Int("min-length", 1, "Minimum length of a given name")
 	maxLength := flags.Int("max-length", 3, "Maximum length of a given name")
 	unsafeYomiCount := flags.Int("yomi-count", 5, "Number of Yomi-Gana candidates")
-	unsafeDirDict := flags.String("dir-dict", "/opt/homebrew/opt/mecab-ipadic/lib/mecab/dic/ipadic", "Directory of MeCab dictionary (full space only)")
+	unsafeDicDir := flags.String("dir-dict", "", "Directory of MeCab dictionary (full space only)")
 
 	flags.Usage = func() {
 		o := flags.Output()
@@ -77,17 +78,23 @@ EXAMPLES
 			return nil, errors.New("yomi-count must be greater than or equal to 1")
 		}
 
-		stat, err := os.Stat(*unsafeDirDict)
-		if err != nil {
-			return nil, fmt.Errorf("failed to stat %q: %w", *unsafeDirDict, err)
+		var dicDirFunc dicdir.Func
+		if len(*unsafeDicDir) == 0 {
+			dicDirFunc = dicdir.Fallback(dicdir.Neologd(dicdir.ByMecabConfig()), dicdir.Ipa(dicdir.ByMecabConfig()))
+		} else {
+			stat, err := os.Stat(*unsafeDicDir)
+			if err != nil {
+				return nil, fmt.Errorf("failed to stat %q: %w", *unsafeDicDir, err)
+			}
+
+			if !stat.IsDir() {
+				return nil, fmt.Errorf("%q is not a directory", *unsafeDicDir)
+			}
+			dicDir := *unsafeDicDir
+			dicDirFunc = dicdir.ByConstant(dicDir, nil)
 		}
 
-		if !stat.IsDir() {
-			return nil, fmt.Errorf("%q is not a directory", *unsafeDirDict)
-		}
-		dirDict := *unsafeDirDict
-
-		m, err := mecabfactory.WithDictionaryDirectory(dirDict)
+		m, err := mecabfactory.WithDictionary(dicDirFunc)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create MeCab: %w", err)
 		}

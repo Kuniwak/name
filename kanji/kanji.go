@@ -9,7 +9,7 @@ import (
 )
 
 func Load(strokesMap map[rune]byte, yomiMap map[rune][][]rune) map[rune]struct{} {
-	return loader.Intersection2(loader.Load(strokesMap), loader.Load(yomiMap))
+	return loader.Intersection(loader.Load(strokesMap), loader.Load(yomiMap))
 }
 
 func LoadStrokes() map[rune]byte {

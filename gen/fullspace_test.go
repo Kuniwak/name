@@ -21,7 +21,7 @@ func TestNewFullSpaceGenerator(t *testing.T) {
 		'太': {[]rune("タ"), []rune("タイ")},
 		'郎': {[]rune("ロウ")},
 	}
-	cm := loader.Intersection2(loader.Load(strokesMap), loader.Load(yomiMap))
+	cm := loader.Intersection(loader.Load(strokesMap), loader.Load(yomiMap))
 
 	gen, err := NewFullSpaceGenerator(cm, strokes.ByMap(strokesMap), yomi.ByCartesian(yomiMap))
 	if err != nil {
@@ -88,5 +88,9 @@ func TestNewFullSpaceGenerator(t *testing.T) {
 
 	if !reflect.DeepEqual(expected, actual) {
 		t.Error(cmp.Diff(expected, actual))
+	}
+
+	if err := eg.Wait(); err != nil {
+		t.Errorf("want nil, got %#v", err)
 	}
 }

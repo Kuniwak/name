@@ -33,7 +33,7 @@ func ByMap(strokesMap map[rune]byte) Func {
 		if strokes, ok := strokesMap[r]; ok {
 			return strokes, nil
 		} else {
-			return 0, fmt.Errorf("strokes not found for %v", r)
+			return 0, fmt.Errorf("strokes not found for %q", string(r))
 		}
 	}
 }

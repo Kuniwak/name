@@ -23,7 +23,7 @@ var SubCommand = cli2.SubCommand{
 		strokesFunc := strokes.ByMap(strokesMap)
 		yomiMap := kanji.LoadYomi()
 		yomiFunc := yomi.ByCartesian(yomiMap)
-		cm := loader.Intersection2(loader.Load(strokesMap), loader.Load(yomiMap))
+		cm := loader.Intersection(loader.Load(strokesMap), loader.Load(yomiMap))
 
 		opts, err := ParseOptions(args, procInout.Stdin, procInout.Stderr, cm, strokesFunc, yomiFunc)
 		if err != nil {
