@@ -50,7 +50,7 @@ func TestCartesian(t *testing.T) {
 
 	for name, c := range tc {
 		t.Run(name, func(t *testing.T) {
-			actual := Cartesian(c.input)
+			actual := Cartesian(c.input...)
 			if !reflect.DeepEqual(actual, c.expected) {
 				t.Error(cmp.Diff(c.expected, actual))
 			}

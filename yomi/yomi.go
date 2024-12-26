@@ -48,7 +48,7 @@ func ByCartesian(yomiDict map[rune][][]rune) Func {
 			yomis[i] = yomiDict[r]
 		}
 
-		cartesian := sliceutil.Cartesian(yomis)
+		cartesian := sliceutil.Cartesian(yomis...)
 		results := make([]Result, len(cartesian))
 		for i, yomiParts := range cartesian {
 			yomi := sliceutil.Flatten(yomiParts)

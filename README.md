@@ -24,7 +24,7 @@ Usage: name [options] <familyName>
 
 OPTIONS
   -dir-dict string
-        Directory of MeCab dictionary (full space only) (default "/opt/homebrew/opt/mecab-ipadic/lib/mecab/dic/ipadic")
+        Directory of MeCab dictionary (full space only) (default "")
   -max-length int
         Maximum length of a given name (default 3)
   -min-length int
@@ -249,30 +249,49 @@ $ name filter apply 山田 --to /path/to/result.tsv < ./filter.json
 ...
 ```
 
+
 インストール方法
 ----------------
 ### macOS
 
-1. `brew install mecab mecab-ipadic` (+ 必要なら mecab-ipadic-neologd の辞書を用意)
-2. 以下を実行：
+1. `brew install mecab mecab-ipadic` を実行
+5. [neologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
+3. 以下を実行：
 
     ```console
     $ export CGO_LDFLAGS="`mecab-config --libs`"
-    $ export CGO_CFLAGS="-I`mecab-config --inc-dir`"
-    $ go get github.com/Kuniwak/name
+    $ export CGO_CFLAGS="`mecab-config --cflags`"
+    $ go install github.com/Kuniwak/name
     ```
 
 
 ### Debian / Ubuntu
 
-1. `sudo apt install mecab libmecab-dev mecab-ipadic-utf8` (+ 必要なら mecab-ipadic-neologd の辞書を用意)
-2. 以下を実行：
+1. `sudo apt install mecab libmecab-dev mecab-ipadic-utf8`
+5. [neologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
+3. 以下を実行：
 
     ```console
     $ export CGO_LDFLAGS="`mecab-config --libs`"
-    $ export CGO_CFLAGS="-I`mecab-config --inc-dir`"
-    $ go get github.com/Kuniwak/name
+    $ export CGO_CFLAGS="`mecab-config --cflags`"
+    $ go install github.com/Kuniwak/name
     ```
+
+
+### Windows
+1. 管理者権限の MinGW 環境で `.\assets\bin\install-mecab-mingw` を実行
+2. 環境変数に `MECABRC=C:\MeCab\etc\mecabrc` を追加
+3. 環境変数 `PATH` に `C:\MeCab\bin` を追加
+4. `dotnet tool install -g MecabConfig` を実行 (.NET 8 が必要)
+5. [neologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
+6. 以下を実行：
+
+    ```console
+    $ $Env:CGO_LDFLAGS = mecab-config --libs"
+    $ $Env:CGO_CFLAGS = mecab-config --cflags"
+    $ go install github.com/Kuniwak/name
+    ```
+
 
 ライセンス
 ---------
