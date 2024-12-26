@@ -195,7 +195,6 @@ EXAMPLES
 
 ```console
 $ name search --space common 山田 < ./filter.json | tee result.tsv
-$ ./name search --space common 山田 < ./filter.example.json
 評点    画数    名前    読み    性別    天格    地格    人格    外格    総格
 15      16      匠真    ショウマ        両性    吉      大吉    大吉    大吉    大大吉
 14      23      奨真    ショウマ        両性    吉      大吉    吉      大吉    大大吉
