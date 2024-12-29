@@ -3,150 +3,17 @@
 
 条件に当てはまる名前の候補を列挙します。五格分類法に対応しています。
 
+```console
+$ name search --space common 山田 < ./filter.json | tee result.tsv
+評点    画数    名前    読み    性別    天格    地格    人格    外格    総格
+15      16      匠真    ショウマ        両性    吉      大吉    大吉    大吉    大大吉
+14      23      奨真    ショウマ        両性    吉      大吉    吉      大吉    大大吉
+...
+```
+
 
 使い方
 -----
-
-<details>
-<summary>各コマンドのヘルプ</summary>
-
-```console
-$ name -h
-Usage: name [COMMAND] [OPTIONS]
-
-SUBCOMMANDS
-  filter    name filter related commands
-  search    search for given names
-  info    show information about a given name
-
-$ name search -h
-Usage: name [OPTIONS] <FAMILY_NAME>
-
-OPTIONS
-  -dir-dict string
-        Directory of MeCab dictionary (full space only) (default "")
-  -max-length int
-        Maximum length of a given name (default 3)
-  -min-length int
-        Minimum length of a given name (default 1)
-  -space string
-        Search spaces (available: full, common) (default "common")
-  -yomi-count int
-        Number of Yomi-Gana candidates (default 5)
-
-STDIN
-        Filter notated in JSON. See "name filter validate --help" for details.
-
-EXAMPLES
-        $ name search 山田 < ./filter.example.json
-        評点    画数    名前    読み    天格    地格    人格    外格    総格
-        15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
-        15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
-        ...
-
-$ name info -h
-Usage: name info [OPTIONS] <FAMILY_NAME> <GIVEN_NAME> <GIVEN_NAME_KANA>
-
-EXAMPLES
-        $ name info 山田 太郎 タロウ
-        評点    画数    名前    読み    天格    地格    人格    外格    総格
-        8       13      太郎    タロウ  吉      大吉    大凶    大凶    大吉
-
-$ name filter validate -h
-Usage: name filter validate
-
-STDIN
-        Filter notated in JSON.
-
-                filter       := true | false | and | or | not | sex | length | mora | strokes | minRank | minTotalRank |
-                        yomiCount | yomi | kanjiCount | kanji
-                true         := {"true": {}}
-                false        := {"false": {}}
-                and          := {"and": [filter...]}
-                or           := {"or": [filter...]}
-                not          := {"not": filter}
-                sex          := {"sex": "asexual" | "male" | "female"}
-                length       := {"length": count}
-                mora         := {"maxMora": count}
-                strokes      := {"strokes": count}
-                minRank      := {"minRank": 0-4} (4=大大吉, 3=大吉, 2=吉, 1=凶, 0=大凶)
-                minTotalRank := {"minTotalRank": byte}
-                yomiCount    := {"yomiCount": {"rune": rune, "count": count}}
-                yomi         := {"yomi": match}
-                kanjiCount   := {"kanjiCount": {"rune": rune, "count": count}}
-                kanji        := {"kanji": match}
-                count        := {"equal": byte} | {"greaterThan": byte} | {"lessThan": byte}
-                match        := {"equal": string} | {"contain": string} | {"startWith": string} | {"endWith": string}
-                byte         := 0-255
-                rune         := string that contains only one rune
-
-EXAMPLES
-        $ name filter validate < valid-filter.json
-        $ echo $?
-        0
-
-        $ name filter validate < invalid-filter.json
-        $ echo $?
-        1
-
-$ name filter test -h
-usage: name filter test <FAMILY_NAME> <GIVEN_NAME> <GIVEN_NAME_KANA>
-
-STDIN
-        Filter notated in JSON. See "name filter validate --help" for details.
-
-EXAMPLES
-        $ name filter test 田中 太郎 タロウ < filter.json
-        $ echo $?
-        0
-
-        $ name filter test 田中 太郎 タロウ < filter.json
-        $ echo $?
-        1
-        
-$ name filter apply -h
-Usage: name filter apply <FAMILY_NAME> --to <TSV_PATH>
-OPTIONS
-  -to name search
-        path to the result file of name search
-
-STDIN
-        Filter notated in JSON. See "name filter validate --help" for details.
-
-EXAMPLES
-        $ name filter apply 山田 --to /path/to/result.tsv < ./filter.example.json
-        評点    画数    名前    読み    天格    地格    人格    外格    総格
-        15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
-        15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
-        
-$ name validate -h
-Usage: name validate <GIVEN_NAME>
-
-EXAMPLES
-        $ name validate 太郎
-        $ echo $?
-        0
-
-        $ name validate 龘
-        '龘' is not in 常用漢字 or 人名用漢字 or ひらがな or カタカナ
-        $ echo $?
-        1
-
-$ name yomi -h
-Usage: name yomi [OPTIONS] <GIVEN_NAME>
-
-OPTIONS  -n int
-        number of yomi (used as N-best for MeCab internally) (default 5)
-
-EXAMPLES
-        $ name yomi 太郎
-        タロウ
-        タロウ
-        フトシロウ
-        フトロウ
-        タイロウ
-```
-</details>
 
 まずフィルタを用意します。フィルタは名前の候補について真であれば候補を残し、偽であれば候補を除去します。
 
