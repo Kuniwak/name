@@ -24,17 +24,17 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, cm map[rune]
 	flags.SetOutput(stderr)
 
 	flags.Usage = func() {
-		_, _ = stderr.Write([]byte("Usage: name filter test <familyName> <givenName> <yomi>\n"))
+		_, _ = stderr.Write([]byte("Usage: name filter test <FAMILY_NAME> <GIVEN_NAME> <GIVEN_NAME_KANA>\n"))
 		_, _ = fmt.Fprintf(stderr, `
 STDIN
 	Filter notated in JSON. See "name filter validate --help" for details.
 
 EXAMPLES
-	$ name filter test 田中 太郎 たろう < filter.json
+	$ name filter test 田中 太郎 タロウ < filter.json
 	$ echo $?
 	0
 
-	$ name filter test 田中 太郎 たろう < filter.json
+	$ name filter test 田中 太郎 タロウ < filter.json
 	$ echo $?
 	1
 `)
@@ -67,8 +67,8 @@ EXAMPLES
 		return Options{}, errors.New("family name is required")
 	}
 
-	if !kanji.IsValid(familyName, cm) {
-		return Options{}, errors.New("invalid kanji included")
+	if err := kanji.IsValid(familyName, cm); err != nil {
+		return Options{}, err
 	}
 
 	givenName := []rune(flags.Arg(1))
@@ -76,8 +76,8 @@ EXAMPLES
 		return Options{}, errors.New("given name is required")
 	}
 
-	if !kanji.IsValid(givenName, cm) {
-		return Options{}, errors.New("invalid kanji included")
+	if err := kanji.IsValid(givenName, cm); err != nil {
+		return Options{}, err
 	}
 
 	y := kanaconv.Htok([]rune(norm.NFC.String(flags.Arg(2))))

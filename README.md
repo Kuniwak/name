@@ -12,7 +12,7 @@
 
 ```console
 $ name -h
-Usage: name [subcommand] [options]
+Usage: name [COMMAND] [OPTIONS]
 
 SUBCOMMANDS
   filter    name filter related commands
@@ -20,7 +20,7 @@ SUBCOMMANDS
   info    show information about a given name
 
 $ name search -h
-Usage: name [options] <familyName>
+Usage: name [OPTIONS] <FAMILY_NAME>
 
 OPTIONS
   -dir-dict string
@@ -45,7 +45,7 @@ EXAMPLES
         ...
 
 $ name info -h
-Usage: name info [options] <familyName> <givenName> <yomi>
+Usage: name info [OPTIONS] <FAMILY_NAME> <GIVEN_NAME> <GIVEN_NAME_KANA>
 
 EXAMPLES
         $ name info 山田 太郎 タロウ
@@ -90,7 +90,7 @@ EXAMPLES
         1
 
 $ name filter test -h
-Usage: name filter test <familyName> <givenName> <yomi>
+usage: name filter test <FAMILY_NAME> <GIVEN_NAME> <GIVEN_NAME_KANA>
 
 STDIN
         Filter notated in JSON. See "name filter validate --help" for details.
@@ -105,7 +105,7 @@ EXAMPLES
         1
         
 $ name filter apply -h
-Usage: name filter apply <familyName> --to <path>
+Usage: name filter apply <FAMILY_NAME> --to <TSV_PATH>
 OPTIONS
   -to name search
         path to the result file of name search
@@ -118,6 +118,33 @@ EXAMPLES
         評点    画数    名前    読み    天格    地格    人格    外格    総格
         15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
         15      13      一喜    イッキ  吉      大吉    大吉    大大吉  大吉
+        
+$ name validate -h
+Usage: name validate <GIVEN_NAME>
+
+EXAMPLES
+        $ name validate 太郎
+        $ echo $?
+        0
+
+        $ name validate 龘
+        '龘' is not in 常用漢字 or 人名用漢字 or ひらがな or カタカナ
+        $ echo $?
+        1
+
+$ name yomi -h
+Usage: name yomi [OPTIONS] <GIVEN_NAME>
+
+OPTIONS  -n int
+        number of yomi (used as N-best for MeCab internally) (default 5)
+
+EXAMPLES
+        $ name yomi 太郎
+        タロウ
+        タロウ
+        フトシロウ
+        フトロウ
+        タイロウ
 ```
 </details>
 
@@ -189,6 +216,7 @@ EXAMPLES
 ```
 </details>
 
+
 ### 頻出空間探索
 
 よくある人名の空間から名前候補を探索します。時間はほとんどかかりません。
@@ -200,6 +228,7 @@ $ name search --space common 山田 < ./filter.json | tee result.tsv
 14      23      奨真    ショウマ        両性    吉      大吉    吉      大吉    大大吉
 ...
 ```
+
 
 ### 全空間探索
 
@@ -213,6 +242,7 @@ $ name search --space full 山田 --max-length 2 < ./filter.json | tee result.ts
 ...
 ```
 
+
 ### 名前判定
 
 ```console
@@ -221,6 +251,7 @@ $ name info 山田 太郎 タロウ
 8       13      太郎    タロウ  吉      大吉    大凶    大凶    大吉
 ```
 
+
 ### フィルタ検査
 
 ```console
@@ -228,6 +259,7 @@ $ name filter validate < filter.json
 $ echo $?
 0
 ```
+
 
 ### フィルタ試験
 
@@ -249,12 +281,35 @@ $ name filter apply 山田 --to /path/to/result.tsv < ./filter.json
 ```
 
 
+### 読みの推定
+
+```console
+$ name yomi 太郎
+タロウ
+...
+```
+
+
+### 名前のバリデーション
+
+```console
+$ name validate 太郎
+$ echo $?
+0
+
+$ name validate 龘
+'龘' is not in 常用漢字 or 人名用漢字 or ひらがな or カタカナ
+$ echo $?
+1
+```
+
+
 インストール方法
 ----------------
 ### macOS
 
 1. `brew install mecab mecab-ipadic` を実行
-5. [neologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
+5. [NEologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
 3. 以下を実行：
 
     ```console
@@ -267,7 +322,7 @@ $ name filter apply 山田 --to /path/to/result.tsv < ./filter.json
 ### Debian / Ubuntu
 
 1. `sudo apt install mecab libmecab-dev mecab-ipadic-utf8`
-5. [neologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
+5. [NEologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
 3. 以下を実行：
 
     ```console
@@ -282,7 +337,7 @@ $ name filter apply 山田 --to /path/to/result.tsv < ./filter.json
 2. 環境変数に `MECABRC=C:\MeCab\etc\mecabrc` を追加
 3. 環境変数 `PATH` に `C:\MeCab\bin` を追加
 4. `dotnet tool install -g MecabConfig` を実行 (.NET 8 が必要)
-5. [neologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
+5. [NEologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
 6. 以下を実行：
 
     ```console

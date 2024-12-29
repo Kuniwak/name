@@ -24,7 +24,7 @@ func ParseOptions(args []string, stderr io.Writer, cm map[rune]struct{}) (Option
 
 	flags.Usage = func() {
 		o := flags.Output()
-		_, _ = fmt.Fprintf(o, "Usage: name info [options] <familyName> <givenName> <yomi>\n")
+		_, _ = fmt.Fprintf(o, "Usage: name info [OPTIONS] <FAMILY_NAME> <GIVEN_NAME> <GIVEN_NAME_KANA>\n")
 		_, _ = fmt.Fprintf(o, `
 EXAMPLES
 	$ name info 山田 太郎 タロウ
@@ -49,7 +49,7 @@ EXAMPLES
 		return Options{}, fmt.Errorf("family name is required")
 	}
 
-	if !kanji.IsValid(familyName, cm) {
+	if err := kanji.IsValid(familyName, cm); err != nil {
 		return Options{}, fmt.Errorf("invalid kanji included: %q", familyName)
 	}
 
@@ -58,7 +58,7 @@ EXAMPLES
 		return Options{}, fmt.Errorf("given name is required")
 	}
 
-	if !kanji.IsValid(givenName, cm) {
+	if err := kanji.IsValid(givenName, cm); err != nil {
 		return Options{}, fmt.Errorf("invalid kanji included: %q", givenName)
 	}
 

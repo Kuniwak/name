@@ -25,7 +25,11 @@ func NewCommonSpaceGenerator(cm map[rune]struct{}) GenerateFunc {
 				givenNameString := name
 				givenName := []rune(givenNameString)
 
-				if !kanji.IsValid(givenName, cm) || len(givenName) < opts.MinLength || len(givenName) > opts.MaxLength {
+				if err := kanji.IsValid(givenName, cm); err != nil {
+					continue
+				}
+
+				if len(givenName) < opts.MinLength || len(givenName) > opts.MaxLength {
 					continue
 				}
 
