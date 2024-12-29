@@ -201,15 +201,15 @@ $ echo $?
 
 ### Windows
 1. 管理者権限の MinGW 環境で `.\assets\bin\install-mecab-mingw` を実行
-2. 環境変数に `MECABRC=C:\MeCab\etc\mecabrc` を追加
+2. 環境変数 `MECABRC` に `C:\MeCab\etc\mecabrc` を設定
 3. 環境変数 `PATH` に `C:\MeCab\bin` を追加
 4. `dotnet tool install -g MecabConfig` を実行 (.NET 8 が必要)
 5. [NEologd](https://github.com/neologd/mecab-ipadic-neologd) をインストール（推奨）
-6. 以下を実行：
+6. PowerShell で以下を実行：
 
     ```console
-    $ $Env:CGO_LDFLAGS = mecab-config --libs"
-    $ $Env:CGO_CFLAGS = mecab-config --cflags"
+    $ $Env:CGO_LDFLAGS = mecab-config --libs
+    $ $Env:CGO_CFLAGS = mecab-config --cflags
     $ go install github.com/Kuniwak/name
     ```
 
