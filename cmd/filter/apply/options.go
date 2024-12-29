@@ -21,7 +21,7 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer) (Options, er
 	flags.SetOutput(stderr)
 
 	flags.Usage = func() {
-		_, _ = stderr.Write([]byte("Usage: name filter apply <familyName> --to <path>\n"))
+		_, _ = stderr.Write([]byte("Usage: name filter apply <FAMILY_NAME> --to <TSV_PATH>\n"))
 		_, _ = fmt.Fprintf(stderr, "OPTIONS\n")
 		flags.PrintDefaults()
 		_, _ = fmt.Fprintf(stderr, `

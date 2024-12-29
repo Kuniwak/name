@@ -35,7 +35,7 @@ func ParseOptions(args []string, stdin io.Reader, stderr io.Writer, cm map[rune]
 
 	flags.Usage = func() {
 		o := flags.Output()
-		_, _ = fmt.Fprintf(o, "Usage: name [options] <familyName>\n\n")
+		_, _ = fmt.Fprintf(o, "Usage: name [OPTIONS] <FAMILY_NAME>\n\n")
 		_, _ = fmt.Fprintf(o, "OPTIONS\n")
 		flags.PrintDefaults()
 		_, _ = fmt.Fprintf(o, `
