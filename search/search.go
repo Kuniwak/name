@@ -40,12 +40,12 @@ func Search(
 	for generated := range in {
 		res, err := eval.Evaluate(familyName, generated.GivenName, strokesFunc)
 		if err != nil {
-			return err
+			continue
 		}
 
 		s, err := strokes.Sum(generated.GivenName, strokesFunc)
 		if err != nil {
-			return err
+			continue
 		}
 
 		target := filter.Target{
