@@ -8,6 +8,7 @@ import (
 type Rank byte
 
 const (
+	Unknown     Rank = 255
 	DaiDaiKichi Rank = 4
 	DaiKichi    Rank = 3
 	Kichi       Rank = 2
@@ -27,24 +28,25 @@ func (r Rank) String() string {
 		return "凶"
 	case DaiKyo:
 		return "大凶"
+	default:
+		return "不明"
 	}
-	panic("unknown rank")
 }
 
-func StrokesToRank(strokes byte) (Rank, error) {
+func StrokesToRank(strokes byte) Rank {
 	switch strokes {
 	case 15, 24, 31:
-		return DaiDaiKichi, nil
+		return DaiDaiKichi
 	case 1, 3, 5, 6, 11, 13, 16, 21, 23, 29, 32, 33, 35, 37, 39:
-		return DaiKichi, nil
+		return DaiKichi
 	case 7, 8, 17, 18, 25, 26, 38:
-		return Kichi, nil
+		return Kichi
 	case 14, 22, 27, 28, 30:
-		return Kyo, nil
+		return Kyo
 	case 2, 4, 9, 10, 12, 19, 20, 34, 36, 40:
-		return DaiKyo, nil
+		return DaiKyo
 	}
-	return 0, fmt.Errorf("too large strokes: %d", strokes)
+	return Unknown
 }
 
 type Result struct {
@@ -55,7 +57,14 @@ type Result struct {
 	Sokaku  Rank
 }
 
+func (r Result) HasUnknown() bool {
+	return r.Tenkaku == Unknown || r.Jinkaku == Unknown || r.Chikaku == Unknown || r.Gaikaku == Unknown || r.Sokaku == Unknown
+}
+
 func (r Result) Total() byte {
+	if r.HasUnknown() {
+		return 0
+	}
 	return byte(r.Tenkaku) + byte(r.Jinkaku) + byte(r.Chikaku) + byte(r.Gaikaku) + byte(r.Sokaku)
 }
 
@@ -68,51 +77,31 @@ func Evaluate(familyName, givenName []rune, strokesFunc strokes.Func) (Result, e
 	if err != nil {
 		return Result{}, err
 	}
-
-	tenkaku, err := StrokesToRank(tenkakuStrokes)
-	if err != nil {
-		return Result{}, err
-	}
+	tenkaku := StrokesToRank(tenkakuStrokes)
 
 	jinkakuStrokes, err := Jinkaku(familyName, givenName, strokesFunc)
 	if err != nil {
 		return Result{}, err
 	}
-
-	jinkaku, err := StrokesToRank(jinkakuStrokes)
-	if err != nil {
-		return Result{}, err
-	}
+	jinkaku := StrokesToRank(jinkakuStrokes)
 
 	chikakuStrokes, err := Chikaku(givenName, strokesFunc)
 	if err != nil {
 		return Result{}, err
 	}
-
-	chikaku, err := StrokesToRank(chikakuStrokes)
-	if err != nil {
-		return Result{}, err
-	}
+	chikaku := StrokesToRank(chikakuStrokes)
 
 	gaikakuStrokes, err := Gaikaku(familyName, givenName, strokesFunc)
 	if err != nil {
 		return Result{}, err
 	}
-
-	gaikaku, err := StrokesToRank(gaikakuStrokes)
-	if err != nil {
-		return Result{}, err
-	}
+	gaikaku := StrokesToRank(gaikakuStrokes)
 
 	sokakuStrokes, err := Sokaku(familyName, givenName, strokesFunc)
 	if err != nil {
 		return Result{}, err
 	}
-
-	sokaku, err := StrokesToRank(sokakuStrokes)
-	if err != nil {
-		return Result{}, err
-	}
+	sokaku := StrokesToRank(sokakuStrokes)
 
 	return Result{
 		Tenkaku: tenkaku,

@@ -60,8 +60,8 @@ func TestEvaluate(t *testing.T) {
 func TestStrokesToRank(t *testing.T) {
 	for i := byte(1); i <= config.MaxStrokes; i++ {
 		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
-			if _, err := StrokesToRank(i); err != nil {
-				t.Errorf("want nil, got %v", err)
+			if rank := StrokesToRank(i); rank == Unknown {
+				t.Error("want not unknown, got unknown")
 			}
 		})
 	}
