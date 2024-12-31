@@ -32,11 +32,11 @@ $ name search --space common 山田 < ./filter.json | tee result.tsv
 | 五格それぞれの最小値 | `{"minRank": 0-4}`（`4`=大大吉, `3`=大吉, `2`=吉, `1`=凶, `0`=大凶）               | `{"minRank": 3}`                                                                                                      |
 | 五格の合計値の最小値 | `{"minTotalRank": byte}`                                                | `{"minTotalRank": 11}`                                                                                                |
 | 指定した読み仮名の数 | `{"yomiCount": {"rune": string, "count": count}}`                       | `{"yomiCount": {"rune": "ア", "count": {"equal": 1}}}`                                                                 |
-| 読み仮名のマッチ   | `{"yomi": match}`                                                       | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
-| 漢字のマッチ     | `{"kanji": match}`                                                      | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
-| 指定した漢字の数   | `{"kanjiCount": {"rune": string, "count": count}}`                      | `{"yomiMatch": {"exactly": "タロウ"}}`                                                                                   |                                                     
-| `count`    | `{"equal": byte}` or `{"lessThan": byte}` or `{"greaterThan": byte}`    | `{"equal": 1}`                                                                                                        |
-| `match`    | `{"equal": string}` or `{"startWith": string}` or `{"endWith": string}` | `{"equal": "タロウ"}`                                                                                                    |
+| 読み仮名のマッチ   | `{"yomi": match}`                                                       | `{"yomi": {"equal": "タロウ"}}`                                                                                          |                                                     
+| 漢字のマッチ     | `{"kanji": match}`                                                      | `{"kanji": {"equal": "タロウ"}}`                                                                                         |                                                     
+| 指定した漢字の数   | `{"kanjiCount": {"rune": string, "count": count}}`                      | `{"kanjiCount": {"rune": "漢", equal": 1}}`                                                                            |                                                     
+| `count`    | `{"equal": byte}` or `{"lessThan": byte}` or `{"greaterThan": byte}`    | `{"lessThan": 1}`                                                                                                     |
+| `match`    | `{"equal": string}` or `{"startWith": string}` or `{"endWith": string}` | `{"startWith": "タロ"}`                                                                                                 |
 | `sex`      | `"asexual"` or `"male"` or `"female"`                                   | `{"sex": "asexual"}`                                                                                                  |
 
 <details>
